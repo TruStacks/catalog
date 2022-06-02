@@ -1,9 +1,28 @@
 package main
 
+// component contains methods for components when running in hook
+// mode.
+type component interface {
+	repo() string
+	chart() string
+	preInstall() error
+	postInstall() error
+	preDelete() error
+	postDelete() error
+	preUpgrade() error
+	postUpgrade() error
+	preRollback() error
+	postRollback() error
+}
+
+// baseComponent contains default fields and methods for implemented
+// components.
 type baseComponent struct {
-	Repo    string `json:"repository"`
-	Chart   string `json:"chart"`
-	Version string `json:"version"`
+	Repo    string   `json:"repository"`
+	Chart   string   `json:"chart"`
+	Version string   `json:"version"`
+	Values  string   `json:"values"`
+	Hooks   []string `json:"hooks"`
 }
 
 // repo returns the component's helm repository.

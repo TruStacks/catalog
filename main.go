@@ -2,11 +2,11 @@ package main
 
 import "os"
 
-var mode = os.Getenv("MODE")
+var mode = os.Getenv("CATALOG_MODE")
 
 func main() {
 	switch mode {
-	case "server":
+	default:
 		startCatalogServer()
 	}
 }

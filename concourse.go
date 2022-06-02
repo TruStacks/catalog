@@ -9,7 +9,8 @@ func init() {
 		baseComponent{
 			Repo:    "https://concourse-charts.storage.googleapis.com",
 			Chart:   "concourse/concourse",
-			Version: "",
+			Version: "16.1.22",
+			Hooks:   make([]string, 0),
 		},
 	})
 }

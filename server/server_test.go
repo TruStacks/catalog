@@ -1,34 +1,25 @@
-package main
+package server
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/trustacks/catalog/pkg/catalog"
 )
 
 type testComponent struct {
-	*baseComponent
-}
-
-func TestCatalogAddComponent(t *testing.T) {
-	cat := newComponentCatalog()
-	cat.addComponent("test", &testComponent{
-		&baseComponent{
-			Repo:    "https://charts.test.com",
-			Chart:   "test/test",
-			Version: "1.0.0",
-		},
-	})
-	if cat.Components["test"].repo() != "https://charts.test.com" {
-		t.Fatal("got an unexpected helm repository")
-	}
+	*catalog.BaseComponent
 }
 
 func TestCatalogRequestHandler(t *testing.T) {
-	cat := newComponentCatalog()
-	cat.addComponent("test", &testComponent{
-		&baseComponent{
+	cat, err := catalog.NewComponentCatalog()
+	if err != nil {
+		t.Fatal(err)
+	}
+	cat.AddComponent("test", &testComponent{
+		&catalog.BaseComponent{
 			Repo:    "https://charts.test.com",
 			Chart:   "test/test",
 			Version: "1.0.0",
@@ -37,7 +28,7 @@ func TestCatalogRequestHandler(t *testing.T) {
 	w := httptest.NewRecorder()
 	catalogRequestHandler(cat)(w, httptest.NewRequest("GET", "https://test.com", nil))
 	resp := w.Result()
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
 	comps := make(map[string]interface{})
 	if err := json.Unmarshal(body, &comps); err != nil {
 		t.Fatal(err)

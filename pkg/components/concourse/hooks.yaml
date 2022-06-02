@@ -1,0 +1,69 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: concourse-hook-rbac
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-delete-policy": hook-succeeded
+    "helm.sh/hook-weight": "1"
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  - namespaces
+  verbs:
+  - create
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: concourse-hook-rbac
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-delete-policy": hook-succeeded
+    "helm.sh/hook-weight": "1"
+subjects:
+- kind: ServiceAccount
+  name: concourse-hook-rbac
+roleRef:
+  kind: Role
+  name: concourse-hook-rbac
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: concourse-hook-rbac
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-delete-policy": hook-succeeded
+    "helm.sh/hook-weight": "1"
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: concourse-pre-install
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-delete-policy": hook-succeeded
+    "helm.sh/hook-weight": "2"
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: pre-install
+        image: {{ .image }}
+        env:
+        - name: CATALOG_MODE
+          value: hook
+        - name: HOOK_COMPONENT
+          value: concourse
+        - name: HOOK_KIND
+          value: pre-install
+        - name: SSO_PROVIDER
+          value: {{ .sso }}
+      serviceAccount: concourse-hook-rbac

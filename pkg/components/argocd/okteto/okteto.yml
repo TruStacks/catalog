@@ -1,0 +1,14 @@
+name: okteto-dev
+namespace: argo-cd-okteto-dev
+image: okteto/golang:1
+command: bash
+securityContext:
+  capabilities:
+    add:
+    - SYS_PTRACE
+workdir: /usr/src/app
+volumes:
+- /go/pkg/
+- /root/.cache/go-build/
+sync:
+- ../../../../:/usr/src/app

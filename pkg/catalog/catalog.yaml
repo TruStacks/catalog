@@ -1,0 +1,30 @@
+parameters:
+
+# the single-sign-on provider name.
+- name: sso
+
+# the ci provider name.
+- name: ci
+
+# ingress controller host port.
+- name: ingressPort
+  default: 443
+
+# ingress controller class.
+- name: ingressClass
+  default: ""
+
+# ingress domain name.
+- name: domain
+  default: local.gd
+
+# enable tls
+- name: tls
+  default: true
+
+# enable cert manager support
+- name: certManagerEnabled
+  default: false
+
+# cert manager cluster issuer
+- name: certManagerClusterIssuer

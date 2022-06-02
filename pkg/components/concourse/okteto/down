@@ -1,0 +1,10 @@
+#!/bin/sh
+
+component="concourse"
+service_account="okteto-dev"
+
+if [ -z $namespace ]; then namespace="$component-okteko-dev"; fi
+if [ ! -z $sa ]; then service_account=$sa; fi
+
+cat k8s.yaml | sed -e s/'$NAMESPACE'/$namespace/ -e s/'$SERVICE_ACCOUNT'/$service_account/ | kubectl delete -f -
+okteto down --namespace $namespace

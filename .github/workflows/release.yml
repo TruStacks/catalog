@@ -1,0 +1,66 @@
+name: Release
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  bump-version:
+    if: "!startsWith(github.event.head_commit.message, 'bump:')"
+    name: Bump the version and create the changelog with commitizen
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out the rpoe
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+    - name: Create bump and changelog
+      uses: commitizen-tools/commitizen-action@master
+      with:
+        github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+    outputs:
+      version: ${{ env.REVISION }}
+
+  build:
+    name: Push the container image to Quay
+    runs-on: ubuntu-latest
+    needs: [bump-version]
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+      
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: quay.io/trustacks/catalog:latest,quay.io/trustacks/catalog:${{needs.bump-version.outputs.version}}
+
+  release:
+    name: Deploy the container instance
+    runs-on: ubuntu-latest
+    needs: [build, bump-version]
+    steps:
+      - name: 'Login via Azure CLI'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: 'Deploy to Azure Container Instances'
+        uses: 'azure/aci-deploy@v1'
+        with:
+          name: trustacks-catalog
+          image: quay.io/trustacks/catalog:latest
+          resource-group: ${{ secrets.RESOURCE_GROUP }}
+          dns-name-label: trustacks-catalog
+          location: 'east us 2'
+          restart-policy: OnFailure
+          memory: 1
+          environment-variables: CATALOG_HOOK_SOURCE=quay.io/trustacks/catalog:${{needs.bump-version.outputs.version}}

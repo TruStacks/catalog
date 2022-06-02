@@ -1,0 +1,120 @@
+# helm chart repository.
+repo: "https://github.com/argoproj/argo-helm/releases/download/argo-cd-4.9.12"
+
+# helm chart name.
+chart: "argo-cd"
+
+# helm chart version.
+version: 4.9.12
+
+# helm install values.
+values: |-
+  server:
+    extraArgs:
+    - --insecure
+    ingress:
+      enabled: true
+      hosts:
+      - argo-cd.{{ .domain }}
+      paths:
+      - /
+      {{- if eq .certManagerEnabled true }}
+      annotations:
+        cert-manager.io/cluster-issuer: {{ .certManagerClusterIssuer }}
+    	  {{- if .ingressClass }}
+        kubernetes.io/ingress.class: {{ .ingressClass }}
+        {{- end }}
+      tls:
+      - hosts:
+        - argo-cd.{{ .domain }}
+      secretName: argo-cd-ingress-tls-cert
+      {{- end }}
+    config:
+      {{- if eq .tls true}}
+      url: "https://argo-cd.{{ .domain }}:{{ .ingressPort }}"
+      {{- else}}
+      url: "http://argo-cd.{{ .domain }}:{{ .ingressPort }}"
+      {{- end}}
+      accounts.trustacks: login
+      kustomize.buildOptions: "--enable-alpha-plugins"
+      oidc.config: |
+        name: sso
+        {{- if eq .sso "authentik"}}
+        issuer: "{{- if eq .tls true -}}https{{- else -}}http{{- end -}}://authentik.{{ .domain }}:{{ .ingressPort }}/application/o/argo-cd/"
+        {{- end }}
+        clientID: $oidc-client:id
+        clientSecret: $oidc-client:secret
+        requestedIDTokenClaims:
+          groups:
+            essential: true
+        requestedScopes:
+        - openid
+        - profile
+        - email
+    rbacConfig:
+      policy.csv: |
+          p, role:admin, applications, *, */*, allow
+          p, role:admin, clusters, *, *, allow
+          p, role:admin, accounts, *, *, allow
+          p, role:admin, repositories, *, *, allow
+          p, role:admin, certificates, *, *, allow
+          p, role:admin, accounts, *, *, allow
+          p, role:admin, gpgkeys, *, *, allow
+
+          p, role:editor, repositories, *, */*, allows
+          p, role:editor, applications, *, */*, allow
+          p, role:editor, clusters, create, *, allow
+
+          p, role:viewer, applications, get, */*, allow
+
+          g, admins, role:admin
+          g, editors, role:editor
+          g, viewers, role:viewer
+          g, trustacks, role:editor
+    extraContainers:
+    - name: auth-proxy
+      image: quay.io/trustacks/local-gd-proxy
+      env:
+      - name: UPSTREAM
+        {{- if eq .sso "authentik"}}                                                                                                                                                                             
+        value: authentik
+        {{- end }}
+      - name: LISTEN_PORT
+        value: "{{ .ingressPort }}"
+      - name: SERVICE
+        {{- if eq .sso "authentik"}} 
+        value: authentik 
+        {{- end }}
+  repoServer:
+    env:
+    - name: XDG_CONFIG_HOME
+      value: /.config
+    - name: SOPS_AGE_KEY
+      valueFrom:
+        secretKeyRef:
+          name: sops-age
+          key: age.agekey
+    volumes:
+    - name: custom-tools
+      emptyDir: {}
+    initContainers:
+    - name: install-ksops
+      image: viaductoss/ksops:v3.0.2
+      command:
+      - /bin/sh
+      - -c
+      args:
+      - echo "Installing KSOPS...";
+        mv ksops /custom-tools/;
+        mv $GOPATH/bin/kustomize /custom-tools/;
+        echo "Done.";
+      volumeMounts:
+      - mountPath: /custom-tools
+        name: custom-tools
+    volumeMounts:
+    - mountPath: /usr/local/bin/kustomize
+      name: custom-tools
+      subPath: kustomize
+    - mountPath: /.config/kustomize/plugin/viaduct.ai/v1/ksops/ksops
+      name: custom-tools
+      subPath: ksops

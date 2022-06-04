@@ -4,7 +4,11 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 )
+
+// catalogHookSource is the source for the hook container.
+var catalogHookSource = os.Getenv("CATALOG_HOOK_SOURCE")
 
 // catalog is a singleton for components to register themselves
 // in the catalog manifest.
@@ -12,6 +16,7 @@ var catalog = newComponentCatalog()
 
 // componentCatalog contains the component manifests.
 type componentCatalog struct {
+	HookSource string               `json:"hookSource"`
 	Components map[string]component `json:"components"`
 }
 
@@ -22,7 +27,7 @@ func (c *componentCatalog) addComponent(name string, component component) {
 
 // newComponentCatalog creates the
 func newComponentCatalog() *componentCatalog {
-	return &componentCatalog{make(map[string]component)}
+	return &componentCatalog{catalogHookSource, make(map[string]component)}
 }
 
 // catalogRequestHandler returns the component catalog json

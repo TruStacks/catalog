@@ -5,6 +5,7 @@ package main
 type component interface {
 	repo() string
 	chart() string
+	version() string
 	preInstall() error
 	postInstall() error
 	preDelete() error

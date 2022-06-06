@@ -8,7 +8,7 @@ func init() {
 	catalog.addComponent("vault", &vault{
 		baseComponent{
 			Repo:    "https://helm.releases.hashicorp.com",
-			Chart:   "hashicorp/vault",
+			Chart:   "vault",
 			Version: "0.20.1",
 			Hooks:   make([]string, 0),
 		},

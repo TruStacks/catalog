@@ -1,0 +1,37 @@
+# helm chart repository.
+repo: "https://concourse-charts.storage.googleapis.com"
+
+# helm chart name.
+chart: "concourse"
+
+# helm chart version.
+version: 16.1.22
+
+# helm install values.
+values: 
+  concourse:
+    web:
+      localAuth:
+        enabled: true
+      auth:
+        mainTeam:
+          localUser: trustacks
+      externalUrl: concourse.local.gd:8080
+  web:
+    ingress:
+      enabled: true
+      hosts:
+      - concourse.local.gd
+  worker:
+    env:
+    - name: CONCOURSE_GARDEN_ALLOW_HOST_ACCESS
+      value: true
+    sidecarContainers:
+    - name: buildkit-rootless
+      image: moby/buildkit:rootless
+      securityContext:
+        privileged: true
+
+# helm hooks.
+hooks:
+- pre-install

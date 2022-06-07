@@ -16,7 +16,6 @@ func catalogRequestHandler(c *componentCatalog) func(w http.ResponseWriter, r *h
 		}
 		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-
 		if _, err := w.Write(data); err != nil {
 			log.Println("error:", err)
 		}

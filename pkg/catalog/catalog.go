@@ -30,11 +30,11 @@ type component interface {
 // baseComponent contains default fields and methods for implemented
 // components.
 type BaseComponent struct {
-	Repo    string   `json:"repository"`
-	Chart   string   `json:"chart"`
-	Version string   `json:"version"`
-	Values  string   `json:"values"`
-	Hooks   []string `json:"hooks"`
+	Repo    string                 `json:"repository"`
+	Chart   string                 `json:"chart"`
+	Version string                 `json:"version"`
+	Values  map[string]interface{} `json:"values"`
+	Hooks   []string               `json:"hooks"`
 }
 
 // repo returns the component's helm repository.

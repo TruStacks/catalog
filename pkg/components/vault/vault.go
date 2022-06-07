@@ -1,12 +1,16 @@
-package main
+package vault
+
+import (
+	"github.com/trustacks/catalog/pkg/catalog"
+)
 
 type vault struct {
-	baseComponent
+	catalog.BaseComponent
 }
 
 func init() {
-	catalog.addComponent("vault", &vault{
-		baseComponent{
+	catalog.AddComponent("vault", &vault{
+		catalog.BaseComponent{
 			Repo:    "https://helm.releases.hashicorp.com",
 			Chart:   "vault",
 			Version: "0.20.1",

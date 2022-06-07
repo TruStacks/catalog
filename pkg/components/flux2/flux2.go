@@ -1,12 +1,16 @@
-package main
+package flux2
 
-type fluxcd struct {
-	baseComponent
+import (
+	"github.com/trustacks/catalog/pkg/catalog"
+)
+
+type flux2 struct {
+	catalog.BaseComponent
 }
 
 func init() {
-	catalog.addComponent("fluxcd", &fluxcd{
-		baseComponent{
+	catalog.AddComponent("flux2", &flux2{
+		catalog.BaseComponent{
 			Repo:    "https://github.com/fluxcd-community/helm-charts/releases/download/flux2-0.19.2/",
 			Chart:   "flux2",
 			Version: "0.19.2",

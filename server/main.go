@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 
 	"github.com/trustacks/catalog/pkg/catalog"
@@ -17,7 +18,9 @@ var (
 func main() {
 	switch mode {
 	case "hook":
-		catalog.Call(component, hookKind)
+		if err := catalog.Call(component, hookKind); err != nil {
+			log.Fatal(err)
+		}
 	default:
 		catalog.StartCatalogServer()
 	}

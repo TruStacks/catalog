@@ -1,6 +1,7 @@
 package concourse
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/trustacks/catalog/pkg/catalog"
@@ -13,6 +14,7 @@ type concourse struct {
 }
 
 func (c *concourse) preinstall() error {
+	fmt.Println("hello, world!")
 	return nil
 }
 
@@ -21,7 +23,7 @@ func Include() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	catalog.AddComponent(componentName, &concourse{
+	component := &concourse{
 		catalog.BaseComponent{
 			Repo:    config.Repo,
 			Chart:   config.Chart,
@@ -29,5 +31,14 @@ func Include() {
 			Values:  config.Values,
 			Hooks:   config.Hooks,
 		},
-	})
+	}
+	catalog.AddComponent(componentName, component)
+
+	for hook, fn := range map[string]func() error{
+		"pre-install": component.preinstall,
+	} {
+		if err := catalog.AddHook(componentName, hook, fn); err != nil {
+			log.Fatal(err)
+		}
+	}
 }

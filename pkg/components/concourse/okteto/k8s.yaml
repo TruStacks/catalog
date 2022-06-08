@@ -1,7 +1,15 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: concourse-okteto-dev
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: okteto-dev
+  namespace: concourse-okteto-dev
 spec:
   replicas: 1
   selector:

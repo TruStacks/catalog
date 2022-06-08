@@ -40,11 +40,11 @@ func TestDispatcherAddHook(t *testing.T) {
 		{"test", "post-install", true},
 	}
 
-	d := newDispatcher()
+	d := newHookDispatcher()
 	mockHookFn := func() error { return nil }
 
 	for _, tc := range tests {
-		err := d.AddHook(tc.name, tc.hook, mockHookFn)
+		err := d.addHook(tc.name, tc.hook, mockHookFn)
 		if !tc.hasError && err != nil {
 			t.Fatal("expected an error adding the dispatcher hook")
 		} else if tc.hasError && err == nil {
@@ -59,11 +59,11 @@ func TestDispatcherCall(t *testing.T) {
 		x += 1
 		return nil
 	}
-	d := newDispatcher()
-	if err := d.AddHook("test", "increment", increment); err != nil {
+	d := newHookDispatcher()
+	if err := d.addHook("test", "increment", increment); err != nil {
 		t.Fatal(err)
 	}
-	if err := d.Call("test", "increment"); err != nil {
+	if err := d.call("test", "increment"); err != nil {
 		t.Fatal(err)
 	}
 	if x != 1 {

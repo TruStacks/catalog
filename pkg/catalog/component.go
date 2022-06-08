@@ -40,13 +40,16 @@ func LoadComponentConfig(component string) (*componentConfig, error) {
 // the component.
 var errHookAlreadyExists = fmt.Errorf("the hook already exists")
 
-// dispatcher manages calls to component hooks.
-type dispatcher struct {
+// dispatcher is used to call hooks.
+var dispatcher = newHookDispatcher()
+
+// hookDispatcher manages calls to component hooks.
+type hookDispatcher struct {
 	hooks map[string]map[string]func() error
 }
 
 // AddHook adds the component hook to the disptacher.
-func (d *dispatcher) AddHook(component, hook string, fn func() error) error {
+func (d *hookDispatcher) addHook(component, hook string, fn func() error) error {
 	if _, ok := d.hooks[component]; ok {
 		if _, ok := d.hooks[component][hook]; ok {
 			return errHookAlreadyExists
@@ -60,13 +63,21 @@ func (d *dispatcher) AddHook(component, hook string, fn func() error) error {
 }
 
 // Call executes the component hook.
-func (d *dispatcher) Call(component, hook string) error {
+func (d *hookDispatcher) call(component, hook string) error {
 	return d.hooks[component][hook]()
 }
 
-// newDispatcher creates a new dispatcher instance
-func newDispatcher() *dispatcher {
-	return &dispatcher{make(map[string]map[string]func() error)}
+// newHookDispatcher creates a new hook dispatcher instance
+func newHookDispatcher() *hookDispatcher {
+	return &hookDispatcher{make(map[string]map[string]func() error)}
+}
+
+func AddHook(component, hook string, fn func() error) error {
+	return dispatcher.addHook(component, hook, fn)
+}
+
+func Call(component, hook string) error {
+	return dispatcher.call(component, hook)
 }
 
 func init() {

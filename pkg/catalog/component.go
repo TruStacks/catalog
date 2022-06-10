@@ -3,15 +3,13 @@ package catalog
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
-	"os"
 	"path/filepath"
 
 	"gopkg.in/yaml.v3"
 )
 
 // componentsPath is the path to the components sources.
-var componentsPath string
+var componentsPath = "/components"
 
 // componentConfig contains the component configuration fields.
 type componentConfig struct {
@@ -81,12 +79,4 @@ func AddHook(component, hook string, fn func() error) error {
 // Call runs the hook using the global dispatcher.
 func Call(component, hook string) error {
 	return dispatcher.call(component, hook)
-}
-
-func init() {
-	dir, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-	componentsPath = filepath.Join(dir, "pkg", "components")
 }

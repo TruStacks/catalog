@@ -39,3 +39,4 @@ parameters:
 - name: username
   default: trustacks
 - name: password
+  mask: true

@@ -1,20 +1,32 @@
 package flux2
 
 import (
+	"log"
+
 	"github.com/trustacks/catalog/pkg/catalog"
 )
+
+const componentName = "flux2"
 
 type flux2 struct {
 	catalog.BaseComponent
 }
 
-func init() {
-	catalog.AddComponent("flux2", &flux2{
+// Initialize adds the component to the catalog and configures hooks.
+func Initialize() {
+	config, err := catalog.LoadComponentConfig(componentName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	component := &flux2{
 		catalog.BaseComponent{
-			Repo:    "https://github.com/fluxcd-community/helm-charts/releases/download/flux2-0.19.2/",
-			Chart:   "flux2",
-			Version: "0.19.2",
-			Hooks:   make([]string, 0),
+			Repo:       config.Repo,
+			Chart:      config.Chart,
+			Version:    config.Version,
+			Values:     config.Values,
+			Hooks:      config.Hooks,
+			Parameters: config.Parameters,
 		},
-	})
+	}
+	catalog.AddComponent(componentName, component)
 }

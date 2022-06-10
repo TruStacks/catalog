@@ -1,0 +1,17 @@
+# helm chart repository.
+repo: "https://github.com/fluxcd-community/helm-charts/releases/download/flux2-0.19.2"
+
+# helm chart name.
+chart: "flux2"
+
+# helm chart version.
+version: 0.19.2
+
+# helm install values.
+values: {}
+
+# helm hooks.
+hooks: []
+
+# helm values parameters.
+parameters: []

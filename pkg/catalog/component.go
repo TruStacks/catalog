@@ -15,11 +15,12 @@ var componentsPath string
 
 // componentConfig contains the component configuration fields.
 type componentConfig struct {
-	Repo    string                 `json:"repository"`
-	Chart   string                 `json:"chart"`
-	Version string                 `json:"version"`
-	Values  map[string]interface{} `json:"values"`
-	Hooks   []string               `json:"hooks"`
+	Repo       string                   `json:"repository"`
+	Chart      string                   `json:"chart"`
+	Version    string                   `json:"version"`
+	Hooks      []string                 `json:"hooks"`
+	Values     map[string]interface{}   `json:"values"`
+	Parameters []map[string]interface{} `json:"parameters"`
 }
 
 // LoadComponentConfig loads the component configuration values from
@@ -72,10 +73,12 @@ func newHookDispatcher() *hookDispatcher {
 	return &hookDispatcher{make(map[string]map[string]func() error)}
 }
 
+// AddHook adds the hook to the global dispatcher.
 func AddHook(component, hook string, fn func() error) error {
 	return dispatcher.addHook(component, hook, fn)
 }
 
+// Call runs the hook using the global dispatcher.
 func Call(component, hook string) error {
 	return dispatcher.call(component, hook)
 }

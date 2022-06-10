@@ -22,7 +22,7 @@ values:
   worker:
     env:
     - name: CONCOURSE_GARDEN_ALLOW_HOST_ACCESS
-      value: true
+      value: "true"
     sidecarContainers:
     - name: buildkit-rootless
       image: moby/buildkit:rootless

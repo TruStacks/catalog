@@ -30,8 +30,7 @@ values:
         privileged: true
 
 # helm hooks.
-hooks:
-- pre-install
+hooks: []
 
 # helm values parameters.
 parameters:

@@ -1,20 +1,32 @@
 package vault
 
 import (
+	"log"
+
 	"github.com/trustacks/catalog/pkg/catalog"
 )
+
+const componentName = "vault"
 
 type vault struct {
 	catalog.BaseComponent
 }
 
-func init() {
-	catalog.AddComponent("vault", &vault{
+// Initialize adds the component to the catalog and configures hooks.
+func Initialize() {
+	config, err := catalog.LoadComponentConfig(componentName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	component := &vault{
 		catalog.BaseComponent{
-			Repo:    "https://helm.releases.hashicorp.com",
-			Chart:   "vault",
-			Version: "0.20.1",
-			Hooks:   make([]string, 0),
+			Repo:       config.Repo,
+			Chart:      config.Chart,
+			Version:    config.Version,
+			Values:     config.Values,
+			Hooks:      config.Hooks,
+			Parameters: config.Parameters,
 		},
-	})
+	}
+	catalog.AddComponent(componentName, component)
 }

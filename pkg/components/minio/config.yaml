@@ -1,0 +1,17 @@
+# helm chart repository.
+repo: "https://charts.min.io/helm-releases"
+
+# helm chart name.
+chart: "minio"
+
+# helm chart version.
+version: 4.0.2
+
+# helm install values.
+values: {}
+
+# helm hooks.
+hooks: []
+
+# helm values parameters.
+parameters: []

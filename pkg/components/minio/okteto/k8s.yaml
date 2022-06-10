@@ -1,0 +1,25 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: minio-okteto-dev
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: okteto-dev
+  namespace: minio-okteto-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: okteto-dev
+  template:
+    metadata:
+      labels:
+        app: okteto-dev
+    spec:
+      containers:
+      - image: busybox
+        name: okteto-dev

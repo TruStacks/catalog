@@ -1,20 +1,32 @@
 package minio
 
 import (
+	"log"
+
 	"github.com/trustacks/catalog/pkg/catalog"
 )
+
+const componentName = "minio"
 
 type minio struct {
 	catalog.BaseComponent
 }
 
-func init() {
-	catalog.AddComponent("minio", &minio{
+// Initialize adds the component to the catalog and configures hooks.
+func Initialize() {
+	config, err := catalog.LoadComponentConfig(componentName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	component := &minio{
 		catalog.BaseComponent{
-			Repo:    "https://charts.min.io/helm-releases",
-			Chart:   "minio",
-			Version: "4.0.2",
-			Hooks:   make([]string, 0),
+			Repo:       config.Repo,
+			Chart:      config.Chart,
+			Version:    config.Version,
+			Values:     config.Values,
+			Hooks:      config.Hooks,
+			Parameters: config.Parameters,
 		},
-	})
+	}
+	catalog.AddComponent(componentName, component)
 }

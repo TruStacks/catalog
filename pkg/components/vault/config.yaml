@@ -1,0 +1,17 @@
+# helm chart repository.
+repo: "https://helm.releases.hashicorp.com"
+
+# helm chart name.
+chart: "vault"
+
+# helm chart version.
+version: 0.20.1
+
+# helm install values.
+values: {}
+
+# helm hooks.
+hooks: []
+
+# helm values parameters.
+parameters: []

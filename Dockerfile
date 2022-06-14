@@ -7,7 +7,7 @@ RUN mkdir /components && \
         cp pkg/components/"$i"/config.yaml /components/"$i"/config.yaml; \
     done
 
-RUN CGO_ENABLED=0 go build -o /build/main ./...
+RUN CGO_ENABLED=0 go build -o /build/main ./server
 
 FROM alpine
 COPY --from=builder /build/main /main

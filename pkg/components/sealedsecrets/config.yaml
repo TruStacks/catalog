@@ -1,5 +1,5 @@
 # helm chart repository.
-repo: "https://bitnami-labs.github.io/sealed-secrets"
+repo: "https://github.com/bitnami-labs/sealed-secrets/releases/download/helm-v2.2.0"
 
 # helm chart name.
 chart: "sealedsecrets"

@@ -2,7 +2,7 @@
 repo: "https://charts.min.io/helm-releases"
 
 # helm chart name.
-chart: "minio"
+chart: minio
 
 # helm chart version.
 version: 4.0.2

@@ -13,12 +13,12 @@ var componentsPath = "/components"
 
 // componentConfig contains the component configuration fields.
 type componentConfig struct {
-	Repo       string                   `json:"repository"`
-	Chart      string                   `json:"chart"`
-	Version    string                   `json:"version"`
-	Hooks      []string                 `json:"hooks"`
-	Values     string                   `json:"values"`
-	Parameters []map[string]interface{} `json:"parameters"`
+	Repo       string
+	Chart      string
+	Version    string
+	Values     string
+	Hooks      []string
+	Parameters []map[string]interface{}
 }
 
 // LoadComponentConfig loads the component configuration values from

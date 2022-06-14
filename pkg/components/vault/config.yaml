@@ -2,7 +2,7 @@
 repo: "https://helm.releases.hashicorp.com"
 
 # helm chart name.
-chart: "vault"
+chart: vault
 
 # helm chart version.
 version: 0.20.1

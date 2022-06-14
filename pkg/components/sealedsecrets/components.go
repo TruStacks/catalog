@@ -9,7 +9,7 @@ import (
 const componentName = "sealedsecrets"
 
 type sealedsecrets struct {
-	catalog.BaseComponent
+	*catalog.BaseComponent
 }
 
 // Initialize adds the component to the catalog and configures hooks.
@@ -19,7 +19,7 @@ func Initialize() {
 		log.Fatal(err)
 	}
 	component := &sealedsecrets{
-		catalog.BaseComponent{
+		&catalog.BaseComponent{
 			Repo:       config.Repo,
 			Chart:      config.Chart,
 			Version:    config.Version,

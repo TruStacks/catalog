@@ -33,8 +33,8 @@ type BaseComponent struct {
 	Repo       string                   `json:"repository"`
 	Chart      string                   `json:"chart"`
 	Version    string                   `json:"version"`
-	Hooks      []string                 `json:"hooks"`
 	Values     string                   `json:"values"`
+	Hooks      []string                 `json:"hooks"`
 	Parameters []map[string]interface{} `json:"parameters"`
 }
 

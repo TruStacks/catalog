@@ -8,20 +8,19 @@ chart: "concourse"
 version: 16.1.22
 
 # helm install values.
-values: 
+values: |-
   concourse:
     web:
       localAuth:
         enabled: true
       auth:
         mainTeam:
-          localUser: "{{ .domain }}"
-      externalUrl: |-
-        {{- if eq .tls "y"}}
-        https://concourse.{{ .domain }}:{{ .ingressPort }}
-        {{- else}}
-        http://concourse.{{ .domain }}:{{ .ingressPort }}	
-        {{- end}}
+          localUser: {{ .domain }}
+  {{- if eq .tls "y"}}
+      externalUrl: "https://concourse.{{ .domain }}:{{ .ingressPort }}"
+  {{- else}}
+      externalUrl: "http://concourse.{{ .domain }}:{{ .ingressPort }}"
+  {{- end}}
   web:
     ingress:
       enabled: true

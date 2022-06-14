@@ -1,7 +1,7 @@
 repo: "https://test.trustacks.charts.io"
 chart: "test"
 version: 1.1.1
-values: 
+values: |-
   hello: world
 hooks:
 - post-install

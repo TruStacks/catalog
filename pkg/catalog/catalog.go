@@ -34,7 +34,7 @@ type BaseComponent struct {
 	Chart      string                   `json:"chart"`
 	Version    string                   `json:"version"`
 	Hooks      []string                 `json:"hooks"`
-	Values     map[string]interface{}   `json:"values"`
+	Values     string                   `json:"values"`
 	Parameters []map[string]interface{} `json:"parameters"`
 }
 

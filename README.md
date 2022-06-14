@@ -1,6 +1,6 @@
 # Catalog
 
-The catalog is used for the discovery of [Software Factory](https://github.com/TruStacks/factories) components.
+The catalog is used for the discovery of [Softwre Delivery Toolchain](https://github.com/TruStacks/factories) components.
 
 ## Components
 

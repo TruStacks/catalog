@@ -8,7 +8,7 @@ chart: "sealedsecrets"
 version: 2.2.0
 
 # helm install values.
-values: {}
+values: |-
 
 # helm hooks.
 hooks: []

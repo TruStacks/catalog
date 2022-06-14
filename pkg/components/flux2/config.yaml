@@ -8,7 +8,7 @@ chart: "flux2"
 version: 0.19.2
 
 # helm install values.
-values: {}
+values: |-
 
 # helm hooks.
 hooks: []

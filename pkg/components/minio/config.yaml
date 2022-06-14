@@ -8,7 +8,7 @@ chart: "minio"
 version: 4.0.2
 
 # helm install values.
-values: {}
+values: |-
 
 # helm hooks.
 hooks: []

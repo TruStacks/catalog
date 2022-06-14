@@ -15,8 +15,12 @@ values:
         enabled: true
       auth:
         mainTeam:
-          localUser: "{{ .username }}"
-      externalUrl: "{{ .concourse/url }}"
+          localUser: "{{ .domain }}"
+  {{- if eq .tls "y" }}
+      externalUrl: "https://concourse.{{ .domain }}:{{ .ingressPort }}"
+  {{- else }}
+      externalUrl: "http://concourse.{{ .domain }}:{{ .ingressPort }}"
+  {{- end }}
   web:
     ingress:
       enabled: true
@@ -39,8 +43,12 @@ hooks: []
 
 # helm values parameters.
 parameters:
-- name: concourse/url
-  default: http://concourse.local.gd:8081
+- name: ingressPort
+  default: 8081
+- name: domain
+  default: local.gd
+- name: tls
+  confirm: true
 - name: username
   default: trustacks
 - name: password

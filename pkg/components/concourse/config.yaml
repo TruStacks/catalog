@@ -16,7 +16,7 @@ values:
       auth:
         mainTeam:
           localUser: "{{ .username }}"
-      externalUrl: "{{ .concourseURL }}"
+      externalUrl: "{{ .concourse/url }}"
   web:
     ingress:
       enabled: true
@@ -39,7 +39,7 @@ hooks: []
 
 # helm values parameters.
 parameters:
-- name: concourseURL
+- name: concourse/url
   default: http://concourse.local.gd:8081
 - name: username
   default: trustacks

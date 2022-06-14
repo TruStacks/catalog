@@ -16,7 +16,12 @@ values:
       auth:
         mainTeam:
           localUser: "{{ .username }}"
-      externalUrl: "{{ .domain }}"
+      externalUrl: "{{ .concourseURL }}"
+  web:
+    ingress:
+      enabled: true
+      hosts:
+      - concourse.local.gd
   secrets:
     localUsers: "{{ .username }}:{{ .password | bcrypt }}"
   worker:
@@ -34,7 +39,8 @@ hooks: []
 
 # helm values parameters.
 parameters:
-- name: domain
+- name: concourseURL
+  default: http://concourse.local.gd:8081
 - name: username
   default: trustacks
 - name: password

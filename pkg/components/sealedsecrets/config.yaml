@@ -1,0 +1,17 @@
+# helm chart repository.
+repo: "https://bitnami-labs.github.io/sealed-secrets"
+
+# helm chart name.
+chart: "sealedsecrets"
+
+# helm chart version.
+version: 2.2.0
+
+# helm install values.
+values: {}
+
+# helm hooks.
+hooks: []
+
+# helm values parameters.
+parameters: []

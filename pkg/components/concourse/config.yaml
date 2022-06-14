@@ -45,7 +45,7 @@ hooks: []
 # helm values parameters.
 parameters:
 - name: ingressPort
-  default: 8081
+  default: "8081"
 - name: domain
   default: local.gd
 - name: tls

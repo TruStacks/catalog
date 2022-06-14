@@ -16,11 +16,7 @@ values:
       auth:
         mainTeam:
           localUser: "{{ .domain }}"
-  {{- if eq .tls "y" }}
-      externalUrl: "https://concourse.{{ .domain }}:{{ .ingressPort }}"
-  {{- else }}
-      externalUrl: "http://concourse.{{ .domain }}:{{ .ingressPort }}"
-  {{- end }}
+      externalUrl: "http{{if eq .tls "y"}}s{{end}}://concourse.{{ .domain }}:{{ .ingressPort }}"
   web:
     ingress:
       enabled: true

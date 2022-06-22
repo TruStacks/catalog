@@ -4,7 +4,7 @@ The catalog is used for the discovery of [Softwre Delivery Toolchain](https://gi
 
 ## Components
 
-Components are software services that are used in the software delivery toolchain. Each component must have a *helm repository*, a *helm chart*, *helm version*, and *hooks*.
+Components are software services that are used in the software delivery toolchain. Each component must have a *helm repository*, a *helm chart*, *helm version*, and *hooks*. Yay.
 
 The component must be tested to verify the integrity of any implemented hook functions with the specified *helm version*.
 

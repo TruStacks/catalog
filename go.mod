@@ -2,8 +2,6 @@ module github.com/trustacks/catalog
 
 go 1.18
 
-replace github.com/trustacks/catalog/pkg => ./pkg
-
 require gopkg.in/yaml.v3 v3.0.1
 
 require (

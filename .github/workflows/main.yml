@@ -80,3 +80,4 @@ jobs:
             resource-group: ${{ secrets.RESOURCE_GROUP }}
             dns-name-label: trustacks-catalog
             location: 'east us 2'
+            restart-policy: OnFailure

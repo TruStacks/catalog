@@ -83,3 +83,5 @@ jobs:
           location: 'east us 2'
           restart-policy: OnFailure
           memory: 1
+          ports: 8080
+          environment-variables: 'CATALOG_HOOK_SOURCE=quay.io/trustacks/catalog:latest'

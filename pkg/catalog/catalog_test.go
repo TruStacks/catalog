@@ -32,9 +32,12 @@ func TestCatalogLoadConfig(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	f.Write([]byte(`parameters:
+	if _, err := f.Write([]byte(`parameters:
 - name: test
-  default: default`))
+  default: default
+    `)); err != nil {
+		t.Fatal(err)
+	}
 	defer os.Remove(f.Name())
 	config, err := loadConfig(f.Name())
 	if err != nil {

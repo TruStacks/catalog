@@ -18,9 +18,13 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: 1.18
-          
+      
       - name: Run Unit Test
-        run: cd pkg && go test -v ./...
+        run: |
+          sudo mkdir /data
+          sudo ln -s /workspaces/catalog/pkg/components /data/components
+          sudo ln -s /workspaces/catalog/pkg/catalog.yaml /data/config.yaml
+          cd pkg && go test -v ./...
   
   lint:
     name: Lint

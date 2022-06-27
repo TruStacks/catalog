@@ -22,8 +22,8 @@ jobs:
       - name: Run Unit Test
         run: |
           sudo mkdir -p /data
-          sudo ln -s /workspaces/catalog/pkg/components /data/components
-          sudo ln -s /workspaces/catalog/pkg/catalog.yaml /data/config.yaml
+          sudo ln -s $PWD/pkg/components /data/components
+          sudo ln -s $PWD/pkg/catalog.yaml /data/config.yaml
           cd pkg && go test -v ./...
   
   lint:

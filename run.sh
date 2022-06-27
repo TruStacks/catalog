@@ -1,3 +1,0 @@
-#!/bin/sh
-
-CATALOG_MODE=hook HOOK_COMPONENT=concourse HOOK_KIND=pre-install go run ./...

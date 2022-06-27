@@ -1,16 +1,25 @@
-package catalog
+package server
 
 import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/trustacks/catalog/pkg/catalog"
 )
 
+type testComponent struct {
+	*catalog.BaseComponent
+}
+
 func TestCatalogRequestHandler(t *testing.T) {
-	cat := newComponentCatalog()
-	cat.addComponent("test", &testComponent{
-		&BaseComponent{
+	cat, err := catalog.NewComponentCatalog()
+	if err != nil {
+		t.Fatal(err)
+	}
+	cat.AddComponent("test", &testComponent{
+		&catalog.BaseComponent{
 			Repo:    "https://charts.test.com",
 			Chart:   "test/test",
 			Version: "1.0.0",

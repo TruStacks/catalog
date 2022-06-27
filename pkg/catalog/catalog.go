@@ -1,15 +1,22 @@
 package catalog
 
 import (
+	"io/ioutil"
 	"os"
+
+	"gopkg.in/yaml.v3"
 )
 
-// catalogHookSource is the source for the hook container.
-var catalogHookSource = os.Getenv("CATALOG_HOOK_SOURCE")
+var (
+	// catalogHookSource is the source for the hook container.
+	catalogHookSource = os.Getenv("CATALOG_HOOK_SOURCE")
 
-// catalog is a singleton for components to register themselves
-// in the catalog manifest.
-var catalog = newComponentCatalog()
+	// componentsPath is the path to the components sources.
+	componentsPath = "/data/components"
+
+	// configPath is the path to the catalog configuration.
+	configPath = "/data/config.yaml"
+)
 
 // component contains methods for components when running in hook
 // mode.
@@ -27,97 +34,49 @@ type component interface {
 	postRollback() error
 }
 
-// baseComponent contains default fields and methods for implemented
-// components.
-type BaseComponent struct {
-	Repo       string                   `json:"repository"`
-	Chart      string                   `json:"chart"`
-	Version    string                   `json:"version"`
-	Values     string                   `json:"values"`
-	Hooks      []string                 `json:"hooks"`
-	Parameters []map[string]interface{} `json:"parameters"`
+type componentCatalogConfigParameters struct {
+	Name    string `json:"name"`
+	Default string `json:"default"`
 }
 
-// repo returns the component's helm repository.
-func (c *BaseComponent) repo() string {
-	return c.Repo
+type componentCatalogConfig struct {
+	Parameters []componentCatalogConfigParameters `json:"parameters"`
 }
 
-// chart returns the component's helm chart.
-func (c *BaseComponent) chart() string {
-	return c.Chart
-}
-
-// version returns the component's helm chart version.
-func (c *BaseComponent) version() string {
-	return c.Version
-}
-
-// preInstall executes after templates are rendered, but before any
-// resources are created in kubernetes.
-func (c *BaseComponent) preInstall() error {
-	return nil
-}
-
-// postInstall executes after all resources are loaded into
-// kubernetes.
-func (c *BaseComponent) postInstall() error {
-	return nil
-}
-
-// preDelete executes on a deletion request before any resources are
-// deleted from kubernetes.
-func (c *BaseComponent) preDelete() error {
-	return nil
-}
-
-// postDelete executes on a deletion request after all of the
-// release's resources have been deleted.
-func (c *BaseComponent) postDelete() error {
-	return nil
-}
-
-// preUpgrade executes on an upgrade request after templates are
-// rendered, but before any resources are updated.
-func (c *BaseComponent) preUpgrade() error {
-	return nil
-}
-
-// postUpgrade executes on an upgrade request after all resources
-// have been upgraded.
-func (c *BaseComponent) postUpgrade() error {
-	return nil
-}
-
-// preRollback executes on a rollback request after templates are
-// rendered, but before any resources are rolled back.
-func (c *BaseComponent) preRollback() error {
-	return nil
-}
-
-// postRollback executes on a rollback request after all resources
-// have been modified.
-func (c *BaseComponent) postRollback() error {
-	return nil
-}
-
-// componentCatalog contains the component manifests.
-type componentCatalog struct {
-	HookSource string               `json:"hookSource"`
-	Components map[string]component `json:"components"`
+// ComponentCatalog contains the component manifests.
+type ComponentCatalog struct {
+	HookSource string                  `json:"hookSource"`
+	Components map[string]component    `json:"components"`
+	Config     *componentCatalogConfig `json:"config"`
 }
 
 // addComponent adds the component to the catalog.
-func (c *componentCatalog) addComponent(name string, component component) {
+func (c *ComponentCatalog) AddComponent(name string, component component) {
 	c.Components[name] = component
 }
 
-// AddComponent adds the component to the catalog singleton.
-func AddComponent(name string, component component) {
-	catalog.addComponent(name, component)
+// loadConfig loads the catalog configuration yaml file.
+func loadConfig(path string) (*componentCatalogConfig, error) {
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	var config *componentCatalogConfig
+	if err := yaml.Unmarshal(data, &config); err != nil {
+		return nil, err
+	}
+	return config, nil
 }
 
 // newComponentCatalog creates the
-func newComponentCatalog() *componentCatalog {
-	return &componentCatalog{catalogHookSource, make(map[string]component)}
+func NewComponentCatalog() (*ComponentCatalog, error) {
+	config, err := loadConfig(configPath)
+	if err != nil {
+		return nil, err
+	}
+	return &ComponentCatalog{
+		HookSource: catalogHookSource,
+		Components: make(map[string]component),
+		Config:     config,
+	}, nil
 }

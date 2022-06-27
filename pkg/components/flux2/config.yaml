@@ -12,6 +12,3 @@ values: |-
 
 # helm hooks.
 hooks: []
-
-# helm values parameters.
-parameters: []

@@ -5,8 +5,7 @@ import (
 	"os"
 
 	"github.com/trustacks/catalog/pkg/catalog"
-
-	_ "github.com/trustacks/catalog/pkg/components"
+	"github.com/trustacks/catalog/server"
 )
 
 var (
@@ -22,6 +21,6 @@ func main() {
 			log.Fatal(err)
 		}
 	default:
-		catalog.StartCatalogServer()
+		server.StartCatalogServer()
 	}
 }

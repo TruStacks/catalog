@@ -1,9 +1,7 @@
 package catalog
 
 import (
-	"encoding/json"
 	"io/ioutil"
-	"net/http/httptest"
 	"os"
 	"testing"
 )
@@ -13,15 +11,40 @@ type testComponent struct {
 }
 
 func TestCatalogAddComponent(t *testing.T) {
-	AddComponent("test", &testComponent{
+	cat, err := NewComponentCatalog()
+	if err != nil {
+		t.Fatal(err)
+	}
+	cat.AddComponent("test", &testComponent{
 		&BaseComponent{
 			Repo:    "https://charts.test.com",
 			Chart:   "test/test",
 			Version: "1.0.0",
 		},
 	})
-	if catalog.Components["test"].repo() != "https://charts.test.com" {
+	if cat.Components["test"].repo() != "https://charts.test.com" {
 		t.Fatal("got an unexpected helm repository")
+	}
+}
+
+func TestCatalogLoadConfig(t *testing.T) {
+	f, err := ioutil.TempFile("", "config")
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.Write([]byte(`parameters:
+- name: test
+  default: default`))
+	defer os.Remove(f.Name())
+	config, err := loadConfig(f.Name())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if config.Parameters[0].Name != "test" {
+		t.Fatal("got an unexpected parameter name")
+	}
+	if config.Parameters[0].Default != "default" {
+		t.Fatal("got an unexpected parameter default value")
 	}
 }
 
@@ -30,15 +53,11 @@ func TestCatalogHookSource(t *testing.T) {
 		catalogHookSource = os.Getenv("CATALOG_HOOK_SOURCE")
 	}()
 	catalogHookSource = "test-registry/trustacks/hooks"
-	w := httptest.NewRecorder()
-	catalogRequestHandler(newComponentCatalog())(w, httptest.NewRequest("GET", "https://test.com", nil))
-	resp := w.Result()
-	body, _ := ioutil.ReadAll(resp.Body)
-	comps := make(map[string]interface{})
-	if err := json.Unmarshal(body, &comps); err != nil {
+	cat, err := NewComponentCatalog()
+	if err != nil {
 		t.Fatal(err)
 	}
-	if comps["hookSource"].(string) != "test-registry/trustacks/hooks" {
+	if cat.HookSource != "test-registry/trustacks/hooks" {
 		t.Fatal("got an unexpected hook source")
 	}
 }

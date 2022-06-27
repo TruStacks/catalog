@@ -13,20 +13,19 @@ type flux2 struct {
 }
 
 // Initialize adds the component to the catalog and configures hooks.
-func Initialize() {
+func Initialize(c *catalog.ComponentCatalog) {
 	config, err := catalog.LoadComponentConfig(componentName)
 	if err != nil {
 		log.Fatal(err)
 	}
 	component := &flux2{
 		catalog.BaseComponent{
-			Repo:       config.Repo,
-			Chart:      config.Chart,
-			Version:    config.Version,
-			Values:     config.Values,
-			Hooks:      config.Hooks,
-			Parameters: config.Parameters,
+			Repo:    config.Repo,
+			Chart:   config.Chart,
+			Version: config.Version,
+			Values:  config.Values,
+			Hooks:   config.Hooks,
 		},
 	}
-	catalog.AddComponent(componentName, component)
+	c.AddComponent(componentName, component)
 }

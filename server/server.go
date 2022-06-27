@@ -1,14 +1,19 @@
-package catalog
+package server
 
 import (
 	"encoding/json"
 	"log"
 	"net/http"
+
+	"github.com/trustacks/catalog/pkg/catalog"
+
+	// initialize the components.
+	"github.com/trustacks/catalog/pkg/components"
 )
 
 // catalogRequestHandler returns the component catalog json
 // manifest.
-func catalogRequestHandler(c *componentCatalog) func(w http.ResponseWriter, r *http.Request) {
+func catalogRequestHandler(c *catalog.ComponentCatalog) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		data, err := json.Marshal(c)
 		if err != nil {
@@ -24,7 +29,12 @@ func catalogRequestHandler(c *componentCatalog) func(w http.ResponseWriter, r *h
 
 // startCatalogServer starts the catalog server.
 func StartCatalogServer() {
-	http.HandleFunc("/.well-known/catalog-manifest", catalogRequestHandler(catalog))
+	cat, err := catalog.NewComponentCatalog()
+	if err != nil {
+		log.Fatal(err)
+	}
+	components.Initialize(cat)
+	http.HandleFunc("/.well-known/catalog-manifest", catalogRequestHandler(cat))
 	log.Println("starting server on *:8080	")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal(err)

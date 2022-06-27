@@ -63,23 +63,23 @@ jobs:
           push: true
           tags: quay.io/trustacks/catalog:latest
 
-    deploy:
-      name: Deploy the container instance
-      runs-on: ubuntu-latest
-      needs: [build]
-      steps:
-        - name: 'Login via Azure CLI'
-          uses: azure/login@v1
-          with:
-            creds: ${{ secrets.AZURE_CREDENTIALS }}
-        
-        - name: 'Deploy to Azure Container Instances'
-          uses: 'azure/aci-deploy@v1'
-          with:
-            name: trustacks-catalog
-            image: quay.io/trustacks/catalog:latest
-            resource-group: ${{ secrets.RESOURCE_GROUP }}
-            dns-name-label: trustacks-catalog
-            location: 'east us 2'
-            restart-policy: OnFailure
-            memory: 1
+  deploy:
+    name: Deploy the container instance
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: 'Login via Azure CLI'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: 'Deploy to Azure Container Instances'
+        uses: 'azure/aci-deploy@v1'
+        with:
+          name: trustacks-catalog
+          image: quay.io/trustacks/catalog:latest
+          resource-group: ${{ secrets.RESOURCE_GROUP }}
+          dns-name-label: trustacks-catalog
+          location: 'east us 2'
+          restart-policy: OnFailure
+          memory: 1

@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -10,6 +11,9 @@ import (
 	// initialize the components.
 	"github.com/trustacks/catalog/pkg/components"
 )
+
+// serverPort is the port of the webserver.
+const serverPort = "80"
 
 // catalogRequestHandler returns the component catalog json
 // manifest.
@@ -35,8 +39,8 @@ func StartCatalogServer() {
 	}
 	components.Initialize(cat)
 	http.HandleFunc("/.well-known/catalog-manifest", catalogRequestHandler(cat))
-	log.Println("starting server on *:8080	")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	log.Printf("starting server on *:%s\n", serverPort)
+	if err := http.ListenAndServe(fmt.Sprintf(":%s", serverPort), nil); err != nil {
 		log.Fatal(err)
 	}
 }

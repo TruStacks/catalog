@@ -15,7 +15,7 @@ values: |-
         enabled: true
       auth:
         mainTeam:
-          localUser: {{ .domain }}
+          localUser: {{ .username }}
   {{- if eq .tls "y"}}
       externalUrl: "https://concourse.{{ .domain }}:{{ .ingressPort }}"
   {{- else}}
@@ -25,7 +25,7 @@ values: |-
     ingress:
       enabled: true
       hosts:
-      - concourse.local.gd
+      - concourse.{{ .domain }}
   secrets:
     localUsers: "{{ .username }}:{{ .password | bcrypt }}"
   worker:

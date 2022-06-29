@@ -32,6 +32,10 @@ values: |-
     env:
     - name: CONCOURSE_GARDEN_ALLOW_HOST_ACCESS
       value: "true"
+    - name: CONCOURSE_KUBERNETES_IN_CLUSTER
+      value: "true"
+    - name: CONCOURSE_KUBERNETES_NAMESPACE_PREFIX
+      value: "workflow-"
     sidecarContainers:
     - name: buildkit-rootless
       image: moby/buildkit:rootless

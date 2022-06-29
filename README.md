@@ -36,4 +36,3 @@ Parameters are provided by a ConfigMap mounted in the catalog container that exc
 
 | name | type    | default |
 | ---- | ------- | ------- |
-| sso  | boolean | false   |

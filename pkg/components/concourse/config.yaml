@@ -35,11 +35,6 @@ values: |-
     env:
     - name: CONCOURSE_GARDEN_ALLOW_HOST_ACCESS
       value: "true"
-    sidecarContainers:
-    - name: buildkit-rootless
-      image: moby/buildkit:rootless
-      securityContext:
-        privileged: true
 
 # helm hooks.
 hooks: []

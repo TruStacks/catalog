@@ -35,6 +35,7 @@ values: |-
     env:
     - name: CONCOURSE_GARDEN_ALLOW_HOST_ACCESS
       value: "true"
+  fullnameOverride: concourse
 
 # helm hooks.
 hooks: []

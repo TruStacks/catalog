@@ -16,7 +16,7 @@ values: |-
       auth:
         mainTeam:
           localUser: {{ .username }}
-  {{- if eq .tls "y"}}
+  {{- if .tls true }}
       externalUrl: "https://concourse.{{ .domain }}:{{ .ingressPort }}"
   {{- else}}
       externalUrl: "http://concourse.{{ .domain }}:{{ .ingressPort }}"

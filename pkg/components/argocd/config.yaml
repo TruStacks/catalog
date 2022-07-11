@@ -1,0 +1,68 @@
+# helm chart repository.
+repo: "https://argoproj.github.io/argo-helm"
+
+# helm chart name.
+chart: "argo-cd"
+
+# helm chart version.
+version: 4.9.12
+
+# helm install values.
+values: |-
+  server:
+  extraArgs:
+  {{- if .tls false}}
+  - --insecure
+  {{- end}}
+  ingress:
+    enabled: true
+    hosts:
+    - argo-cd.{{ .domain }}
+    paths:
+    - /
+  config:
+  {{- if .tls true}}
+    url: "https://argo-cd.{{ .domain }}:{{ .ingressPort }}"
+  {{- else}}
+    url: "http://argo-cd.{{ .domain }}:{{ .ingressPort }}"
+  {{- end}}
+    kustomize.buildOptions: "--enable-alpha-plugins"
+  repoServer:
+    env:
+    - name: XDG_CONFIG_HOME
+      value: /.config
+    - name: SOPS_AGE_KEY
+      valueFrom:
+        secretKeyRef:
+          name: sops-age
+          key: value
+    volumes:
+    - name: custom-tools
+      emptyDir: {}
+    initContainers:
+    - name: install-ksops
+      image: viaductoss/ksops:v3.0.2
+      command:
+      - /bin/sh
+      - -c
+      args:
+      - echo "Installing KSOPS...";
+        mv ksops /custom-tools/;
+        mv $GOPATH/bin/kustomize /custom-tools/;
+        echo "Done.";
+      volumeMounts:
+      - mountPath: /custom-tools
+        name: custom-tools
+    volumeMounts:
+    - mountPath: /usr/local/bin/kustomize
+      name: custom-tools
+      subPath: kustomize
+    - mountPath: /.config/kustomize/plugin/viaduct.ai/v1/ksops/ksops
+      name: custom-tools
+      subPath: ksops
+  configs:
+    secret:
+      argocdServerAdminPassword: {{ .password | bcrypt }}"
+
+# helm hooks.
+hooks: []

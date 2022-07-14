@@ -11,16 +11,16 @@ version: 2022.7.2
 values: |-
   {{- $postgresqlPassword := randAlphaNum 32 -}}
   authentik:
-  secret_key: {{ randAlphaNum 32 }}
-  postgresql:
-    password: {{ $postgresqlPassword }}
+    secret_key: {{ randAlphaNum 32 }}
+    postgresql:
+      password: {{ $postgresqlPassword }}
   ingress:
     enabled: true
     hosts:
     - host: authentik.{{ .domain }}
-    paths:
-    - path: "/"
-      pathType: "Prefix"
+      paths:
+      - path: "/"
+        pathType: "Prefix"
   postgresql:
     enabled: true
     postgresqlPassword: {{ $postgresqlPassword }}

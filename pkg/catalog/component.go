@@ -81,8 +81,8 @@ func (c *BaseComponent) postRollback() error {
 	return nil
 }
 
-// componentConfig contains the component configuration fields.
-type componentConfig struct {
+// ComponentConfig contains the component configuration fields.
+type ComponentConfig struct {
 	Repo    string
 	Chart   string
 	Version string
@@ -92,12 +92,12 @@ type componentConfig struct {
 
 // LoadComponentConfig loads the component configuration values from
 // the config file.
-func LoadComponentConfig(component string) (*componentConfig, error) {
+func LoadComponentConfig(component string) (*ComponentConfig, error) {
 	data, err := ioutil.ReadFile(filepath.Join(componentsPath, component, "config.yaml"))
 	if err != nil {
 		return nil, err
 	}
-	var config *componentConfig
+	var config *ComponentConfig
 	if err := yaml.Unmarshal(data, &config); err != nil {
 		return nil, err
 	}

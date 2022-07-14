@@ -10,7 +10,7 @@ import (
 // CreateOIDCClient creates an openid connection authentication
 // client.
 func CreateOIDCClient(params map[string]interface{}) (interface{}, error) {
-	var method func(string) (string, string, error)
+	var method func(string) (interface{}, error)
 
 	provider, ok := params["provider"]
 	if !ok {
@@ -27,11 +27,11 @@ func CreateOIDCClient(params map[string]interface{}) (interface{}, error) {
 	default:
 		return nil, errors.New("no provider was found to handle the method")
 	}
-	id, secret, err := method(name.(string))
+	result, err := method(name.(string))
 	if err != nil {
 		return nil, fmt.Errorf("error creating the oidc client: %s", err)
 	}
-	return map[string]interface{}{"client_id": id, "client_secret": secret}, nil
+	return result, nil
 }
 
 func init() {

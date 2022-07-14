@@ -3,7 +3,6 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: concourse-okteto-dev
-
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -20,6 +19,34 @@ spec:
       labels:
         app: okteto-dev
     spec:
+      serviceAccount: okteto-dev
       containers:
       - image: busybox
         name: okteto-dev
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: okteto-dev
+  namespace: concourse-okteto-dev
+rules: []
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: okteto-dev
+  namespace: concourse-okteto-dev
+subjects:
+- kind: ServiceAccount
+  name: okteto-dev
+  namespace: concourse-okteto-dev
+roleRef:
+  kind: Role
+  name: okteto-dev
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: okteto-dev
+  namespace: concourse-okteto-dev

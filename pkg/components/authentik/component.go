@@ -3,6 +3,7 @@ package authentik
 import (
 	"bytes"
 	"context"
+	_ "embed"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -13,6 +14,8 @@ import (
 
 	"github.com/sethvargo/go-password/password"
 	"github.com/trustacks/catalog/pkg/catalog"
+	"gopkg.in/yaml.v3"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -30,6 +33,116 @@ var apiTokenSecret = "authentik-bootstrap"
 
 type authentik struct {
 	catalog.BaseComponent
+}
+
+// preInstall creates the authentik admin api token.
+func (c *authentik) preInstall() error {
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		return err
+	}
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return err
+	}
+	log.Printf("create admin api token")
+	res, err := password.Generate(32, 10, 0, false, false)
+	if err != nil {
+		return err
+	}
+	if err := createAPIToken(res, clientset); err != nil {
+		return err
+	}
+	return nil
+}
+
+// postInstall creates the authentik user groups.
+func (c *authentik) postInstall() error {
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		return err
+	}
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return err
+	}
+	log.Println("create authentik user groups")
+	token, err := getAPIToken(clientset)
+	if err != nil {
+		return err
+	}
+	if err := createGroups(serviceURL, token); err != nil {
+		return err
+	}
+	return nil
+}
+
+// createAPIToken creates the api token secret.
+func createAPIToken(token string, clientset kubernetes.Interface) error {
+	secret := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: apiTokenSecret,
+		},
+		Data: map[string][]byte{
+			"api-token": []byte(token),
+		},
+	}
+	namespace, err := getNamespace()
+	if err != nil {
+		return err
+	}
+	_, err = clientset.CoreV1().Secrets(namespace).Get(context.TODO(), apiTokenSecret, metav1.GetOptions{})
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			_, err = clientset.CoreV1().Secrets(namespace).Create(context.TODO(), secret, metav1.CreateOptions{})
+			return err
+		}
+		if !strings.Contains(err.Error(), "already exists") {
+			return nil
+		}
+		return err
+	}
+	return nil
+}
+
+// group represents an authentik group.
+type group struct {
+	Name        string `json:"name"`
+	Users       []int  `json:"users"`
+	IsSuperuser bool   `json:"is_superuser"`
+	Parent      *int   `json:"parent"`
+}
+
+// createGroups creates the user groups.
+func createGroups(url, token string) error {
+	groups := []group{
+		{"admins", []int{1}, true, nil},
+		{"editors", []int{}, false, nil},
+		{"viewers", []int{}, false, nil},
+	}
+	for _, g := range groups {
+		data, err := json.Marshal(g)
+		if err != nil {
+			return err
+		}
+		// check if the group already exists.
+		resp, err := getAPIResource(url, "core/groups", token, fmt.Sprintf("name=%s", g.Name))
+		if err != nil {
+			return err
+		}
+		results := make(map[string]interface{})
+		if err := json.Unmarshal(resp, &results); err != nil {
+			return err
+		}
+		if len(results["results"].([]interface{})) > 0 {
+			continue
+		}
+		_, err = postAPIResource(url, "core/groups", token, data)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // getAPIToken gets the api token secret value.
@@ -215,50 +328,57 @@ func createApplication(provider int, name, url, token string) error {
 }
 
 // CreateOIDCCLient creates a consumable end to end oidc client.
-func CreateOIDCCLient(name string) (string, string, error) {
+func CreateOIDCCLient(name string) (interface{}, error) {
 	config, err := rest.InClusterConfig()
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
 	token, err := getAPIToken(clientset)
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
 	mappings, err := getPropertyMappings(serviceURL, token)
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
 	flow, err := getAuthorizationFlow(serviceURL, token)
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
 	pk, id, secret, err := createOIDCProvider(name, serviceURL, token, flow, mappings)
 	if err != nil {
-		return "", "", err
+		return nil, err
 	}
 	if err := createApplication(pk, name, serviceURL, token); err != nil {
-		return "", "", err
+		return nil, err
 	}
-	return id, secret, nil
+	return map[string]interface{}{
+		"issuer":        fmt.Sprintf("http://authentik.local.gd:8081/application/o/%s/", name),
+		"client_id":     id,
+		"client_secret": secret,
+	}, nil
 }
+
+//go:embed config.yaml
+var config []byte
 
 // Initialize adds the component to the catalog and configures hooks.
 func Initialize(c *catalog.ComponentCatalog) {
-	config, err := catalog.LoadComponentConfig(componentName)
-	if err != nil {
+	var conf *catalog.ComponentConfig
+	if err := yaml.Unmarshal(config, &conf); err != nil {
 		log.Fatal(err)
 	}
 	component := &authentik{
 		catalog.BaseComponent{
-			Repo:    config.Repo,
-			Chart:   config.Chart,
-			Version: config.Version,
-			Values:  config.Values,
-			Hooks:   config.Hooks,
+			Repo:    conf.Repo,
+			Chart:   conf.Chart,
+			Version: conf.Version,
+			Values:  conf.Values,
+			Hooks:   conf.Hooks,
 		},
 	}
 	c.AddComponent(componentName, component)

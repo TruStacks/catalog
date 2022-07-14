@@ -25,11 +25,11 @@ func Initialize(c *catalog.ComponentCatalog) {
 	}
 	component := &concourse{
 		catalog.BaseComponent{
-			Repo:      conf.Repo,
-			Chart:     conf.Chart,
-			Version:   conf.Version,
-			Values:    conf.Values,
-			Manifests: "",
+			Repo:    conf.Repo,
+			Chart:   conf.Chart,
+			Version: conf.Version,
+			Values:  conf.Values,
+			Hooks:   "",
 		},
 	}
 	c.AddComponent(componentName, component)

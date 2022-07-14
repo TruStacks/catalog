@@ -2,7 +2,6 @@ package argocd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"testing"
 
@@ -10,27 +9,12 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func TestLoadComponent(t *testing.T) {
-	var config catalog.BaseComponent
-	data, err := ioutil.ReadFile("config.yaml")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := yaml.Unmarshal(data, &config); err != nil {
-		t.Fatal(err)
-	}
-}
-
 func TestGetChart(t *testing.T) {
-	var config catalog.BaseComponent
-	data, err := ioutil.ReadFile("config.yaml")
-	if err != nil {
+	var conf *catalog.ComponentConfig
+	if err := yaml.Unmarshal(config, &conf); err != nil {
 		t.Fatal(err)
 	}
-	if err := yaml.Unmarshal(data, &config); err != nil {
-		t.Fatal(err)
-	}
-	url := fmt.Sprintf("%s/%s-%s.tgz", config.Repo, config.Chart, config.Version)
+	url := fmt.Sprintf("%s/%s-%s.tgz", conf.Repo, conf.Chart, conf.Version)
 	resp, err := http.Get(url)
 	if err != nil {
 		t.Fatal(err)

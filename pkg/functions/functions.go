@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -60,6 +61,8 @@ func FunctionRequestHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		return nil
 	}(); err != nil {
-		w.Write([]byte(fmt.Sprintf(`{"error": "%s"}`, err.Error())))
+		if _, err := w.Write([]byte(fmt.Sprintf(`{"error": "%s"}`, err.Error()))); err != nil {
+			log.Println(err)
+		}
 	}
 }

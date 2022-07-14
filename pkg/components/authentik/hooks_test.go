@@ -56,10 +56,14 @@ func TestCreateGroups(t *testing.T) {
 			getGroups = append(getGroups, name)
 			if name == "admins" {
 				// return a result to simulate an existing 'admins' group.
-				w.Write([]byte(`{"results": [{}]}`))
+				if _, err := w.Write([]byte(`{"results": [{}]}`)); err != nil {
+					t.Fatal(err)
+				}
 			} else {
 				// return no result to invoke group creation.
-				w.Write([]byte(`{"results": []}`))
+				if _, err := w.Write([]byte(`{"results": []}`)); err != nil {
+					t.Fatal(err)
+				}
 			}
 		case "POST":
 			data, err := ioutil.ReadAll(r.Body)
@@ -72,7 +76,9 @@ func TestCreateGroups(t *testing.T) {
 			}
 			// add group to post groups.
 			postGroups = append(postGroups, g.Name)
-			w.Write([]byte(`{}`))
+			if _, err := w.Write([]byte(`{}`)); err != nil {
+				t.Fatal(err)
+			}
 		}
 	}))
 	if err := createGroups(ts.URL, "test-token"); err != nil {

@@ -262,6 +262,13 @@ func Initialize(c *catalog.ComponentCatalog) {
 		},
 	}
 	c.AddComponent(componentName, component)
-	catalog.AddHook(componentName, "preInstall", component.preInstall)
-	catalog.AddHook(componentName, "postInstall", component.postInstall)
+
+	for hook, fn := range map[string]func() error{
+		"preInstall":  component.preInstall,
+		"postInstall": component.postInstall,
+	} {
+		if err := catalog.AddHook(componentName, hook, fn); err != nil {
+			log.Fatal(err)
+		}
+	}
 }

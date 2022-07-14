@@ -93,11 +93,13 @@ func TestGetAPIToken(t *testing.T) {
 
 func TestGetPropertyMappings(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`{"results": [
+		if _, err := w.Write([]byte(`{"results": [
 			{"managed": "goauthentik.io/providers/oauth2/scope-email", "pk": "pk1"},
 			{"managed": "goauthentik.io/providers/oauth2/scope-openid", "pk": "pk2"},
 			{"managed": "goauthentik.io/providers/oauth2/scope-profile", "pk": "pk3"}
-		]}`))
+		]}`)); err != nil {
+			t.Fatal(err)
+		}
 	}))
 	pm, err := getPropertyMappings(ts.URL, "test-token")
 	if err != nil {
@@ -108,7 +110,9 @@ func TestGetPropertyMappings(t *testing.T) {
 
 func TestGetAuthoroizationFlow(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`{"results": [{"pk": "123", "slug": "default-provider-authorization-explicit-consent"}]}`))
+		if _, err := w.Write([]byte(`{"results": [{"pk": "123", "slug": "default-provider-authorization-explicit-consent"}]}`)); err != nil {
+			t.Fatal(err)
+		}
 	}))
 	pk, err := getAuthorizationFlow(ts.URL, "test-token")
 	if err != nil {
@@ -119,7 +123,9 @@ func TestGetAuthoroizationFlow(t *testing.T) {
 
 func TestCreateOIDCProvider(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`{"pk": 123}`))
+		if _, err := w.Write([]byte(`{"pk": 123}`)); err != nil {
+			t.Fatal(err)
+		}
 	}))
 	mappings := []string{
 		"225abbd5-1a2b-44a8-b21d-df7f3c9be735",
@@ -138,7 +144,9 @@ func TestCreateOIDCProvider(t *testing.T) {
 
 func TestCreateApplication(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`{}`))
+		if _, err := w.Write([]byte(`{}`)); err != nil {
+			t.Fatal(err)
+		}
 	}))
 	if err := createApplication(123, "test", ts.URL, "test-token"); err != nil {
 		t.Fatal(err)

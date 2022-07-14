@@ -116,6 +116,18 @@ type dispatcher struct {
 	methods map[string]map[string]func() error
 }
 
+// hook names.
+const (
+	PreInstallHook  = "pre-install"
+	PostInstallHook = "post-install"
+	PreDeleteHook   = "pre-delete"
+	PostDeleteHook  = "post-delete"
+	PreUpgrade      = "pre-upgrade"
+	PostUpgrade     = "post-upgrade"
+	PreRollback     = "pre-rollback"
+	PostRollback    = "post-rollback"
+)
+
 // AddHook adds the component hook to the disptacher.
 func (d *dispatcher) addHook(component, hook string, fn func() error) error {
 	if _, ok := d.methods[component]; ok {
@@ -126,7 +138,6 @@ func (d *dispatcher) addHook(component, hook string, fn func() error) error {
 	} else {
 		d.methods[component] = map[string]func() error{hook: fn}
 	}
-
 	return nil
 }
 

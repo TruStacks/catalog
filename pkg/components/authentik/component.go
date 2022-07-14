@@ -384,8 +384,8 @@ func Initialize(c *catalog.ComponentCatalog) {
 	c.AddComponent(componentName, component)
 
 	for hook, fn := range map[string]func() error{
-		"preInstall":  component.preInstall,
-		"postInstall": component.postInstall,
+		catalog.PreInstallHook:  component.preInstall,
+		catalog.PostInstallHook: component.postInstall,
 	} {
 		if err := catalog.AddHook(componentName, hook, fn); err != nil {
 			log.Fatal(err)

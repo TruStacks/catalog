@@ -9,30 +9,28 @@ version: 2022.7.2
 
 # helm install values.
 values: |-
-  {{- define postgresqlPassword -}}
-  {{ randAlphaNum 32 | quote }}
-  {{- end -}}
+  {{- $postgresqlPassword := randAlphaNum 32 -}}
   authentik:
-  secret_key: {{ randAlphaNum 32 | quote }}
+  secret_key: {{ randAlphaNum 32 }}
   postgresql:
-    password: {{ template "postgresqlPassword" . }}
+    password: {{ $postgresqlPassword }}
   ingress:
     enabled: true
     hosts:
     - host: authentik.{{ .domain }}
-      paths:
-      - path: "/"
-        pathType: "Prefix"
+    paths:
+    - path: "/"
+      pathType: "Prefix"
   postgresql:
     enabled: true
-    postgresqlPassword: {{ template "postgresqlPassword" . }}
+    postgresqlPassword: {{ $postgresqlPassword }}
   redis:
     enabled: true
   envValueFrom:
     AUTHENTIK_BOOTSTRAP_TOKEN:
-      secretKeyRef:
-        name: authentik-bootstrap
-        key: api-token
+    secretKeyRef:
+      name: authentik-bootstrap
+      key: api-token
 
 # helm hooks.
 hooks: [

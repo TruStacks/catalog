@@ -14,7 +14,7 @@ type argocd struct {
 	catalog.BaseComponent
 }
 
-//go:embed config.yaml
+// go:embed config.yaml
 var config []byte
 
 // Initialize adds the component to the catalog and configures hooks.
@@ -25,11 +25,11 @@ func Initialize(c *catalog.ComponentCatalog) {
 	}
 	component := &argocd{
 		catalog.BaseComponent{
-			Repo:    conf.Repo,
-			Chart:   conf.Chart,
-			Version: conf.Version,
-			Values:  conf.Values,
-			Hooks:   conf.Hooks,
+			Repo:      conf.Repo,
+			Chart:     conf.Chart,
+			Version:   conf.Version,
+			Values:    conf.Values,
+			Manifests: "",
 		},
 	}
 	c.AddComponent(componentName, component)

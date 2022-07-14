@@ -11,11 +11,11 @@ import (
 // baseComponent contains default fields and methods for implemented
 // components.
 type BaseComponent struct {
-	Repo    string   `json:"repository"`
-	Chart   string   `json:"chart"`
-	Version string   `json:"version"`
-	Values  string   `json:"values"`
-	Hooks   []string `json:"hooks"`
+	Repo      string `json:"repository"`
+	Chart     string `json:"chart"`
+	Version   string `json:"version"`
+	Values    string `json:"values"`
+	Manifests string `json:"manifests"`
 }
 
 // repo returns the component's helm repository.
@@ -83,11 +83,11 @@ func (c *BaseComponent) postRollback() error {
 
 // ComponentConfig contains the component configuration fields.
 type ComponentConfig struct {
-	Repo    string
-	Chart   string
-	Version string
-	Values  string
-	Hooks   []string
+	Repo      string
+	Chart     string
+	Version   string
+	Values    string
+	Manifests string
 }
 
 // LoadComponentConfig loads the component configuration values from

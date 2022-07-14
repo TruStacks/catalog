@@ -366,6 +366,9 @@ func CreateOIDCCLient(name string) (interface{}, error) {
 //go:embed config.yaml
 var config []byte
 
+//go:embed manifests.yaml
+var manifests []byte
+
 // Initialize adds the component to the catalog and configures hooks.
 func Initialize(c *catalog.ComponentCatalog) {
 	var conf *catalog.ComponentConfig
@@ -374,11 +377,11 @@ func Initialize(c *catalog.ComponentCatalog) {
 	}
 	component := &authentik{
 		catalog.BaseComponent{
-			Repo:    conf.Repo,
-			Chart:   conf.Chart,
-			Version: conf.Version,
-			Values:  conf.Values,
-			Hooks:   conf.Hooks,
+			Repo:      conf.Repo,
+			Chart:     conf.Chart,
+			Version:   conf.Version,
+			Values:    conf.Values,
+			Manifests: string(manifests),
 		},
 	}
 	c.AddComponent(componentName, component)

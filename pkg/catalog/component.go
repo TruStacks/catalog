@@ -108,44 +108,45 @@ func LoadComponentConfig(component string) (*componentConfig, error) {
 // the component.
 var errHookAlreadyExists = fmt.Errorf("the hook already exists")
 
-// dispatcher is used to call hooks.
-var dispatcher = newHookDispatcher()
+// hookDispatcher is used to call hooks.
+var hookDispatcher = newHookDispatcher()
 
-// hookDispatcher manages calls to component hooks.
-type hookDispatcher struct {
-	hooks map[string]map[string]func() error
+// dispatcher manages calls to component hooks.
+type dispatcher struct {
+	methods map[string]map[string]func() error
 }
 
 // AddHook adds the component hook to the disptacher.
-func (d *hookDispatcher) addHook(component, hook string, fn func() error) error {
-	if _, ok := d.hooks[component]; ok {
-		if _, ok := d.hooks[component][hook]; ok {
+func (d *dispatcher) addHook(component, hook string, fn func() error) error {
+	if _, ok := d.methods[component]; ok {
+		if _, ok := d.methods[component][hook]; ok {
 			return errHookAlreadyExists
 		}
-		d.hooks[component][hook] = fn
+		d.methods[component][hook] = fn
 	} else {
-		d.hooks[component] = map[string]func() error{hook: fn}
+		d.methods[component] = map[string]func() error{hook: fn}
 	}
 
 	return nil
 }
 
 // Call executes the component hook.
-func (d *hookDispatcher) call(component, hook string) error {
-	return d.hooks[component][hook]()
+func (d *dispatcher) call(component, hook string) error {
+
+	return d.methods[component][hook]()
 }
 
 // newHookDispatcher creates a new hook dispatcher instance
-func newHookDispatcher() *hookDispatcher {
-	return &hookDispatcher{make(map[string]map[string]func() error)}
+func newHookDispatcher() *dispatcher {
+	return &dispatcher{make(map[string]map[string]func() error)}
 }
 
 // AddHook adds the hook to the global dispatcher.
 func AddHook(component, hook string, fn func() error) error {
-	return dispatcher.addHook(component, hook, fn)
+	return hookDispatcher.addHook(component, hook, fn)
 }
 
 // Call runs the hook using the global dispatcher.
-func Call(component, hook string) error {
-	return dispatcher.call(component, hook)
+func CallHook(component, hook string) error {
+	return hookDispatcher.call(component, hook)
 }

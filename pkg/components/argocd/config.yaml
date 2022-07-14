@@ -1,5 +1,5 @@
 # helm chart repository.
-repo: "https://argoproj.github.io/argo-helm"
+repo: "https://github.com/argoproj/argo-helm/releases/download/argo-cd-4.9.12"
 
 # helm chart name.
 chart: "argo-cd"
@@ -10,23 +10,23 @@ version: 4.9.12
 # helm install values.
 values: |-
   server:
-  extraArgs:
-  {{- if .tls false}}
-  - --insecure
-  {{- end}}
-  ingress:
-    enabled: true
-    hosts:
-    - argo-cd.{{ .domain }}
-    paths:
-    - /
-  config:
-  {{- if .tls true}}
-    url: "https://argo-cd.{{ .domain }}:{{ .ingressPort }}"
-  {{- else}}
-    url: "http://argo-cd.{{ .domain }}:{{ .ingressPort }}"
-  {{- end}}
-    kustomize.buildOptions: "--enable-alpha-plugins"
+    extraArgs:
+    {{- if .tls false}}
+    - --insecure
+    {{- end}}
+    ingress:
+      enabled: true
+      hosts:
+      - argo-cd.{{ .domain }}
+      paths:
+      - /
+    config:
+    {{- if .tls true}}
+      url: "https://argo-cd.{{ .domain }}:{{ .ingressPort }}"
+    {{- else}}
+      url: "http://argo-cd.{{ .domain }}:{{ .ingressPort }}"
+    {{- end}}
+      kustomize.buildOptions: "--enable-alpha-plugins"
   repoServer:
     env:
     - name: XDG_CONFIG_HOME

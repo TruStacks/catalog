@@ -3,6 +3,7 @@ package components
 // Import catalog component modules
 import (
 	"github.com/trustacks/catalog/pkg/catalog"
+	"github.com/trustacks/catalog/pkg/components/authentik"
 	"github.com/trustacks/catalog/pkg/components/concourse"
 	"github.com/trustacks/catalog/pkg/components/flux2"
 	"github.com/trustacks/catalog/pkg/components/minio"
@@ -11,6 +12,7 @@ import (
 )
 
 func Initialize(catalog *catalog.ComponentCatalog) {
+	authentik.Initialize(catalog)
 	concourse.Initialize(catalog)
 	flux2.Initialize(catalog)
 	minio.Initialize(catalog)

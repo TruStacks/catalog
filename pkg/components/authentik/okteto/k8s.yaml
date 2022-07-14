@@ -1,0 +1,60 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: authentik-okteto-dev
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: okteto-dev
+  namespace: authentik-okteto-dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: okteto-dev
+  template:
+    metadata:
+      labels:
+        app: okteto-dev
+    spec:
+      serviceAccount: okteto-dev
+      containers:
+      - image: busybox
+        name: okteto-dev
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: okteto-dev
+  namespace: authentik-okteto-dev
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - delete
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: okteto-dev
+  namespace: authentik-okteto-dev
+subjects:
+- kind: ServiceAccount
+  name: okteto-dev
+  namespace: authentik-okteto-dev
+roleRef:
+  kind: Role
+  name: okteto-dev
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: okteto-dev
+  namespace: authentik-okteto-dev

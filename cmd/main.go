@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/trustacks/catalog/pkg/catalog"
+	"github.com/trustacks/catalog/pkg/components"
 	"github.com/trustacks/catalog/server"
 )
 
@@ -15,12 +16,18 @@ var (
 )
 
 func main() {
+	cat, err := catalog.NewComponentCatalog()
+	if err != nil {
+		log.Fatal(err)
+	}
+	components.Initialize(cat)
+
 	switch mode {
 	case "hook":
-		if err := catalog.Call(component, hookKind); err != nil {
+		if err := catalog.CallHook(component, hookKind); err != nil {
 			log.Fatal(err)
 		}
 	default:
-		server.StartCatalogServer()
+		server.StartCatalogServer(cat)
 	}
 }

@@ -1,0 +1,41 @@
+# helm chart repository.
+repo: "https://github.com/goauthentik/helm/releases/download/authentik-2022.7.2/"
+
+# helm chart name.
+chart: "authentik"
+
+# helm chart version.
+version: 2022.7.2
+
+# helm install values.
+values: |-
+  {{- define postgresqlPassword -}}
+  {{ randAlphaNum 32 | quote }}
+  {{- end -}}
+  authentik:
+  secret_key: {{ randAlphaNum 32 | quote }}
+  postgresql:
+    password: {{ template "postgresqlPassword" . }}
+  ingress:
+    enabled: true
+    hosts:
+    - host: authentik.{{ .domain }}
+      paths:
+      - path: "/"
+        pathType: "Prefix"
+  postgresql:
+    enabled: true
+    postgresqlPassword: {{ template "postgresqlPassword" . }}
+  redis:
+    enabled: true
+  envValueFrom:
+    AUTHENTIK_BOOTSTRAP_TOKEN:
+      secretKeyRef:
+        name: authentik-bootstrap
+        key: api-token
+
+# helm hooks.
+hooks: [
+  "pre-install",
+  "post-install"
+]

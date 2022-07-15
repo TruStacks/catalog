@@ -200,14 +200,10 @@ func TestCreateGroups(t *testing.T) {
 
 func TestHealthCheckService(t *testing.T) {
 	// test the health check with a malforned URL.
-	ctx, cancel := context.WithCancel(context.Background())
-	go func() {
-		// force cancel the loop with a context cancel
-		time.Sleep(time.Second * 1)
-		cancel()
-	}()
-	if err := healthCheckService("http://test.trustacks.local", 1, ctx); err != nil {
-		t.Fatal(err)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+	if err := healthCheckService("http://test.trustacks.local", 1, ctx); err == nil {
+		t.Fatal("expected a timeout error")
 	}
 	// test the health check with a valid URL.
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))

@@ -217,15 +217,10 @@ func healthCheckService(url string, interval int, ctx context.Context) error {
 		select {
 		case <-time.After(time.Second * time.Duration(interval)):
 			if _, err := http.Get(url); err != nil {
-				// return non 'no such host' error
-				if !strings.Contains(err.Error(), "no such host") {
-					return err
-				}
 				continue
 			}
-		// check for context cancellation
 		case <-ctx.Done():
-			return nil
+			return errors.New("service health check timeout")
 		}
 		break
 	}
@@ -357,7 +352,9 @@ func CreateOIDCCLient(name string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := healthCheckService(serviceURL, 2, context.TODO()); err != nil {
+	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Second)
+	defer cancel()
+	if err := healthCheckService(serviceURL, 2, ctx); err != nil {
 		return nil, err
 	}
 	token, err := getAPIToken(namespace, clientset)

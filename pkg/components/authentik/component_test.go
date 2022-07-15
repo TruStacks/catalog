@@ -206,7 +206,7 @@ func TestHealthCheckService(t *testing.T) {
 		time.Sleep(time.Second * 1)
 		cancel()
 	}()
-	if err := healthCheckService("http://test", 1, ctx); err != nil {
+	if err := healthCheckService("http://test.trustacks.local", 1, ctx); err != nil {
 		t.Fatal(err)
 	}
 	// test the health check with a valid URL.

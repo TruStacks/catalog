@@ -48,12 +48,16 @@ func (c *authentik) preInstall() error {
 	if err != nil {
 		return err
 	}
+	namespace, err := getNamespace()
+	if err != nil {
+		return err
+	}
 	log.Printf("create admin api token")
 	res, err := password.Generate(32, 10, 0, false, false)
 	if err != nil {
 		return err
 	}
-	if err := createAPIToken("test", res, clientset); err != nil {
+	if err := createAPIToken(namespace, res, clientset); err != nil {
 		return err
 	}
 	return nil
@@ -69,11 +73,20 @@ func (c *authentik) postInstall() error {
 	if err != nil {
 		return err
 	}
-	log.Println("create authentik user groups")
-	token, err := getAPIToken("test", clientset)
+	namespace, err := getNamespace()
 	if err != nil {
 		return err
 	}
+	token, err := getAPIToken(namespace, clientset)
+	if err != nil {
+		return err
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Second)
+	defer cancel()
+	if err := healthCheckService(serviceURL, 2, ctx); err != nil {
+		return err
+	}
+	log.Println("create authentik user groups")
 	if err := createGroups(serviceURL, token); err != nil {
 		return err
 	}

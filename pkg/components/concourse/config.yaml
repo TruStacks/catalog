@@ -15,12 +15,15 @@ values: |-
         enabled: true
       auth:
         mainTeam:
-          localUser: {{ .username }}
-  {{- if eq .tls true }}
-      externalUrl: "https://concourse.{{ .domain }}:{{ .ingressPort }}"
-  {{- else}}
-      externalUrl: "http://concourse.{{ .domain }}:{{ .ingressPort }}"
-  {{- end}}
+          oidc:
+            group: admins
+        oidc:
+          enabled: true
+          displayName: sso
+          {{- if eq .sso "authentik"}}
+          issuer: "{{- if eq .tls true -}}https{{- else -}}http{{- end -}}://authentik.{{ .domain }}:{{ .ingressPort }}/application/o/concourse"
+          {{- end }}
+      externalUrl: "{{- if eq .tls true -}}https{{- else -}}http{{- end -}}://concourse.{{ .domain }}:{{ .ingressPort }}"
       kubernetes:
         namespacePrefix: workflow-
         keepNamespace: false
@@ -29,8 +32,6 @@ values: |-
       enabled: true
       hosts:
       - concourse.{{ .domain }}
-  secrets:
-    localUsers: "{{ .username }}:{{ .password | bcrypt }}"
   worker:
     env:
     - name: CONCOURSE_GARDEN_ALLOW_HOST_ACCESS

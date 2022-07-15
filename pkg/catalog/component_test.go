@@ -1,33 +1,8 @@
 package catalog
 
 import (
-	"os"
-	"path/filepath"
 	"testing"
 )
-
-func patchComponentsPath(t *testing.T) func() {
-	previousComponentsPath := componentsPath
-	d, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	componentsPath = filepath.Join(d, "testdata")
-	return func() {
-		componentsPath = previousComponentsPath
-	}
-}
-
-func TestLoadComponentConfig(t *testing.T) {
-	defer patchComponentsPath(t)()
-	config, err := LoadComponentConfig("test_component")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if config.Repo != "https://test.trustacks.charts.io" {
-		t.Fatal("configuration was not loaded correctly")
-	}
-}
 
 func TestDispatcherAddHook(t *testing.T) {
 	tests := []struct {

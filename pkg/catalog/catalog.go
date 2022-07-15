@@ -1,7 +1,7 @@
 package catalog
 
 import (
-	"io/ioutil"
+	_ "embed"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -10,12 +10,6 @@ import (
 var (
 	// catalogHookSource is the source for the hook container.
 	catalogHookSource = os.Getenv("CATALOG_HOOK_SOURCE")
-
-	// componentsPath is the path to the components sources.
-	componentsPath = "/data/components"
-
-	// configPath is the path to the catalog configuration.
-	configPath = "/data/config.yaml"
 )
 
 // component contains methods for components when running in hook
@@ -56,11 +50,7 @@ func (c *ComponentCatalog) AddComponent(name string, component component) {
 }
 
 // loadConfig loads the catalog configuration yaml file.
-func loadConfig(path string) (*componentCatalogConfig, error) {
-	data, err := ioutil.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
+func loadConfig(data []byte) (*componentCatalogConfig, error) {
 	var config *componentCatalogConfig
 	if err := yaml.Unmarshal(data, &config); err != nil {
 		return nil, err
@@ -68,9 +58,12 @@ func loadConfig(path string) (*componentCatalogConfig, error) {
 	return config, nil
 }
 
+//go:embed catalog.yaml
+var catalogConfig []byte
+
 // newComponentCatalog creates the
 func NewComponentCatalog() (*ComponentCatalog, error) {
-	config, err := loadConfig(configPath)
+	config, err := loadConfig(catalogConfig)
 	if err != nil {
 		return nil, err
 	}

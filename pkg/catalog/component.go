@@ -2,10 +2,6 @@ package catalog
 
 import (
 	"fmt"
-	"io/ioutil"
-	"path/filepath"
-
-	"gopkg.in/yaml.v3"
 )
 
 // baseComponent contains default fields and methods for implemented
@@ -88,20 +84,6 @@ type ComponentConfig struct {
 	Version   string
 	Values    string
 	Manifests string
-}
-
-// LoadComponentConfig loads the component configuration values from
-// the config file.
-func LoadComponentConfig(component string) (*ComponentConfig, error) {
-	data, err := ioutil.ReadFile(filepath.Join(componentsPath, component, "config.yaml"))
-	if err != nil {
-		return nil, err
-	}
-	var config *ComponentConfig
-	if err := yaml.Unmarshal(data, &config); err != nil {
-		return nil, err
-	}
-	return config, nil
 }
 
 // errHookAlreadyExists is returned if the hook already exists for

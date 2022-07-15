@@ -1,7 +1,6 @@
 package catalog
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 )
@@ -28,18 +27,11 @@ func TestCatalogAddComponent(t *testing.T) {
 }
 
 func TestCatalogLoadConfig(t *testing.T) {
-	f, err := ioutil.TempFile("", "config")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if _, err := f.Write([]byte(`parameters:
+	raw := []byte(`parameters:
 - name: test
   default: default
-    `)); err != nil {
-		t.Fatal(err)
-	}
-	defer os.Remove(f.Name())
-	config, err := loadConfig(f.Name())
+    `)
+	config, err := loadConfig(raw)
 	if err != nil {
 		t.Fatal(err)
 	}

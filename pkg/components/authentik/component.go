@@ -11,6 +11,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/sethvargo/go-password/password"
 	"github.com/trustacks/catalog/pkg/catalog"
@@ -26,6 +27,8 @@ const (
 	componentName = "authentik"
 	// serviceURL is the url of the authentik service.
 	serviceURL = "http://authentik"
+	// inClusterNamespace is the path to the in-cluster namespace.
+	inClusterNamespace = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
 )
 
 // apiTokenSecret is the secret where the api token is stored.
@@ -50,7 +53,7 @@ func (c *authentik) preInstall() error {
 	if err != nil {
 		return err
 	}
-	if err := createAPIToken(res, clientset); err != nil {
+	if err := createAPIToken("test", res, clientset); err != nil {
 		return err
 	}
 	return nil
@@ -67,7 +70,7 @@ func (c *authentik) postInstall() error {
 		return err
 	}
 	log.Println("create authentik user groups")
-	token, err := getAPIToken(clientset)
+	token, err := getAPIToken("test", clientset)
 	if err != nil {
 		return err
 	}
@@ -78,7 +81,7 @@ func (c *authentik) postInstall() error {
 }
 
 // createAPIToken creates the api token secret.
-func createAPIToken(token string, clientset kubernetes.Interface) error {
+func createAPIToken(namespace, token string, clientset kubernetes.Interface) error {
 	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: apiTokenSecret,
@@ -87,11 +90,7 @@ func createAPIToken(token string, clientset kubernetes.Interface) error {
 			"api-token": []byte(token),
 		},
 	}
-	namespace, err := getNamespace()
-	if err != nil {
-		return err
-	}
-	_, err = clientset.CoreV1().Secrets(namespace).Get(context.TODO(), apiTokenSecret, metav1.GetOptions{})
+	_, err := clientset.CoreV1().Secrets(namespace).Get(context.TODO(), apiTokenSecret, metav1.GetOptions{})
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			_, err = clientset.CoreV1().Secrets(namespace).Create(context.TODO(), secret, metav1.CreateOptions{})
@@ -103,6 +102,15 @@ func createAPIToken(token string, clientset kubernetes.Interface) error {
 		return err
 	}
 	return nil
+}
+
+// getAPIToken gets the api token secret value.
+func getAPIToken(namespace string, clientset kubernetes.Interface) (string, error) {
+	secret, err := clientset.CoreV1().Secrets(namespace).Get(context.TODO(), apiTokenSecret, metav1.GetOptions{})
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(secret.Data["api-token"])), nil
 }
 
 // group represents an authentik group.
@@ -143,19 +151,6 @@ func createGroups(url, token string) error {
 		}
 	}
 	return nil
-}
-
-// getAPIToken gets the api token secret value.
-func getAPIToken(clientset kubernetes.Interface) (string, error) {
-	namespace, err := getNamespace()
-	if err != nil {
-		return "", err
-	}
-	secret, err := clientset.CoreV1().Secrets(namespace).Get(context.TODO(), apiTokenSecret, metav1.GetOptions{})
-	if err != nil {
-		return "", err
-	}
-	return strings.TrimSpace(string(secret.Data["api-token"])), nil
 }
 
 // getAPIResource gets the API resource at the provided path.
@@ -209,11 +204,32 @@ func postAPIResource(url, resource, token string, data []byte) ([]byte, error) {
 
 // getNamespace gets the current kubernetes namespace.
 func getNamespace() (string, error) {
-	data, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
+	data, err := ioutil.ReadFile(inClusterNamespace)
 	if err != nil {
 		return "", err
 	}
 	return strings.TrimSpace(string(data)), err
+}
+
+// healthCheckService checks the health of the authentik service.
+func healthCheckService(url string, interval int, ctx context.Context) error {
+	for {
+		select {
+		case <-time.After(time.Second * time.Duration(interval)):
+			if _, err := http.Get(url); err != nil {
+				// return non 'no such host' error
+				if !strings.Contains(err.Error(), "no such host") {
+					return err
+				}
+				continue
+			}
+		// check for context cancellation
+		case <-ctx.Done():
+			return nil
+		}
+		break
+	}
+	return nil
 }
 
 type propertyMapping struct {
@@ -337,7 +353,14 @@ func CreateOIDCCLient(name string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	token, err := getAPIToken(clientset)
+	namespace, err := getNamespace()
+	if err != nil {
+		return nil, err
+	}
+	if err := healthCheckService(serviceURL, 2, context.TODO()); err != nil {
+		return nil, err
+	}
+	token, err := getAPIToken(namespace, clientset)
 	if err != nil {
 		return nil, err
 	}

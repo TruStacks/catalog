@@ -7,9 +7,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/trustacks/catalog/pkg/catalog"
@@ -54,22 +54,12 @@ func TestGetAPIToken(t *testing.T) {
 			"api-token": []byte("test-token"),
 		},
 	}
-	if err := os.MkdirAll("/var/run/secrets/kubernetes.io/serviceaccount", 0755); err != nil {
-		t.Fatal(err)
-	}
-	if err := ioutil.WriteFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace", []byte("test"), 0644); err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
-	namespace, err := getNamespace()
+	namespace := "test"
+	_, err := clientset.CoreV1().Secrets(namespace).Create(context.TODO(), secret, metav1.CreateOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = clientset.CoreV1().Secrets(namespace).Create(context.TODO(), secret, metav1.CreateOptions{})
-	if err != nil {
-		t.Fatal(err)
-	}
-	token, err := getAPIToken(clientset)
+	token, err := getAPIToken(namespace, clientset)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -88,6 +78,7 @@ func TestGetPropertyMappings(t *testing.T) {
 			t.Fatal(err)
 		}
 	}))
+	defer ts.Close()
 	pm, err := getPropertyMappings(ts.URL, "test-token")
 	if err != nil {
 		t.Fatal(err)
@@ -101,6 +92,7 @@ func TestGetAuthoroizationFlow(t *testing.T) {
 			t.Fatal(err)
 		}
 	}))
+	defer ts.Close()
 	pk, err := getAuthorizationFlow(ts.URL, "test-token")
 	if err != nil {
 		t.Fatal(err)
@@ -114,6 +106,7 @@ func TestCreateOIDCProvider(t *testing.T) {
 			t.Fatal(err)
 		}
 	}))
+	defer ts.Close()
 	mappings := []string{
 		"225abbd5-1a2b-44a8-b21d-df7f3c9be735",
 		"faee6fea-8b07-40f7-bda8-0c02159cd608",
@@ -135,6 +128,7 @@ func TestCreateApplication(t *testing.T) {
 			t.Fatal(err)
 		}
 	}))
+	defer ts.Close()
 	if err := createApplication(123, "test", ts.URL, "test-token"); err != nil {
 		t.Fatal(err)
 	}
@@ -142,19 +136,9 @@ func TestCreateApplication(t *testing.T) {
 
 func TestCreateAPIToken(t *testing.T) {
 	defer patchAPIToken()()
-	if err := os.MkdirAll("/var/run/secrets/kubernetes.io/serviceaccount", 0755); err != nil {
-		t.Fatal(err)
-	}
-	if err := ioutil.WriteFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace", []byte("test"), 0644); err != nil {
-		t.Fatal(err)
-	}
 	clientset := fake.NewSimpleClientset()
-	if err := createAPIToken("test-token", clientset); err != nil {
-		t.Fatal(err)
-	}
-	defer os.RemoveAll("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
-	namespace, err := getNamespace()
-	if err != nil {
+	namespace := "test"
+	if err := createAPIToken(namespace, "test-token", clientset); err != nil {
 		t.Fatal(err)
 	}
 	secret, err := clientset.CoreV1().Secrets(namespace).Get(context.TODO(), apiTokenSecret, metav1.GetOptions{})
@@ -164,7 +148,7 @@ func TestCreateAPIToken(t *testing.T) {
 	assert.Equal(t, "test-token", strings.TrimSpace(string(secret.Data["api-token"])), "got an unexpected token value")
 
 	// check idempotence.
-	if err := createAPIToken("test-token", clientset); err != nil {
+	if err := createAPIToken(namespace, "test-token", clientset); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -206,9 +190,28 @@ func TestCreateGroups(t *testing.T) {
 			}
 		}
 	}))
+	defer ts.Close()
 	if err := createGroups(ts.URL, "test-token"); err != nil {
 		t.Fatal(err)
 	}
 	assert.ElementsMatch(t, getGroups, []string{"admins", "editors", "viewers"})
 	assert.ElementsMatch(t, postGroups, []string{"editors", "viewers"})
+}
+
+func TestHealthCheckService(t *testing.T) {
+	// test the health check with a malforned URL.
+	ctx, cancel := context.WithCancel(context.Background())
+	go func() {
+		// force cancel the loop with a context cancel
+		time.Sleep(time.Second * 1)
+		cancel()
+	}()
+	if err := healthCheckService("http://test", 1, ctx); err != nil {
+		t.Fatal(err)
+	}
+	// test the health check with a valid URL.
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
+	if err := healthCheckService(ts.URL, 1, context.TODO()); err != nil {
+		t.Fatal(err)
+	}
 }

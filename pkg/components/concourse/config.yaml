@@ -5,7 +5,7 @@ repo: "https://concourse-charts.storage.googleapis.com"
 chart: "concourse"
 
 # helm chart version.
-version: 16.1.22
+version: 17.0.12
 
 # helm install values.
 values: |-
@@ -36,6 +36,8 @@ values: |-
     - name: CONCOURSE_GARDEN_ALLOW_HOST_ACCESS
       value: "true"
   fullnameOverride: concourse
+  postgresql:
+    fullnameOverride: concourse-postgresql
 
 # helm hooks.
 hooks: []

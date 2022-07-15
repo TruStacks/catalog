@@ -28,11 +28,14 @@ The desired hook must implemented for the provided component. The [Base Componen
 
 *Server mode is the default mode if the **CATALOG_MODE** environment variable is not set.*
 
-## Global Parameters
+## Parameters
 
-Global parameters are configuration options that can be used for conditional functionality in hooks.
+Configuration parameters are defined in the toolchain install config. The provided parameters are used in the component values. The available parameters are defined in [catalog.yaml](https://github.com/TruStacks/catalog/blob/main/pkg/catalog/catalog.yaml).
 
-Parameters are provided by a ConfigMap mounted in the catalog container that exceutes the hook during helm install at `/data/config.json`
+## Chart dependencies
 
-| name | type    | default |
-| ---- | ------- | ------- |
+Toolchains that use this catalog must provide the following helm chart dependencies:
+
+| name | source | version |
+| - | - | - |
+| common | https://library-charts.k8s-at-home.com | >= 4.2.0

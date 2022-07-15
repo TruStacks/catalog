@@ -1,5 +1,8 @@
 parameters:
 
+# the single-sign-on provider name.
+- name: sso
+
 # ingress controller host port.
 - name: ingressPort
   default: 443

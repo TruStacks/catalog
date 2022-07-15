@@ -85,4 +85,6 @@ spec:
           value: authentik
         - name: HOOK_KIND
           value: post-install
+        - name: SERVICE_URL
+          value: {{ include "common.names.fullname" . }}
       serviceAccount: authentik-hook-rbac

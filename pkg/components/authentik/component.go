@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -25,8 +26,6 @@ import (
 const (
 	// componentName is the name of the component.
 	componentName = "authentik"
-	// serviceURL is the url of the authentik service.
-	serviceURL = "http://authentik"
 	// inClusterNamespace is the path to the in-cluster namespace.
 	inClusterNamespace = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
 )
@@ -83,6 +82,7 @@ func (c *authentik) postInstall() error {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Second)
 	defer cancel()
+	serviceURL := os.Getenv("SERVICE_URL")
 	if err := healthCheckService(serviceURL, 2, ctx); err != nil {
 		return err
 	}
@@ -230,6 +230,7 @@ func healthCheckService(url string, interval int, ctx context.Context) error {
 		select {
 		case <-time.After(time.Second * time.Duration(interval)):
 			if _, err := http.Get(url); err != nil {
+				log.Println(err)
 				continue
 			}
 		case <-ctx.Done():
@@ -367,6 +368,7 @@ func CreateOIDCCLient(name string) (interface{}, error) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Second)
 	defer cancel()
+	serviceURL := fmt.Sprintf(os.Getenv("RELEASE_NAME"), "authentik")
 	if err := healthCheckService(serviceURL, 2, ctx); err != nil {
 		return nil, err
 	}

@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/trustacks/catalog/pkg/catalog"
-	"github.com/trustacks/catalog/pkg/functions"
 )
 
 // serverPort is the port of the webserver.
@@ -32,7 +31,6 @@ func catalogRequestHandler(c *catalog.ComponentCatalog) func(w http.ResponseWrit
 // startCatalogServer starts the catalog server.
 func StartCatalogServer(cat *catalog.ComponentCatalog) {
 	http.HandleFunc("/.well-known/catalog-manifest", catalogRequestHandler(cat))
-	http.HandleFunc("/rpc", functions.FunctionRequestHandler)
 	log.Printf("starting server on *:%s\n", serverPort)
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", serverPort), nil); err != nil {
 		log.Fatal(err)

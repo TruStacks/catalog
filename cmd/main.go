@@ -6,13 +6,14 @@ import (
 
 	"github.com/trustacks/catalog/pkg/catalog"
 	"github.com/trustacks/catalog/pkg/components"
+	"github.com/trustacks/catalog/pkg/hooks"
 	"github.com/trustacks/catalog/server"
 )
 
 var (
-	mode      = os.Getenv("CATALOG_MODE")
-	component = os.Getenv("HOOK_COMPONENT")
-	hookKind  = os.Getenv("HOOK_KIND")
+	mode          = os.Getenv("CATALOG_MODE")
+	hookComponent = os.Getenv("HOOK_COMPONENT")
+	hookKind      = os.Getenv("HOOK_KIND")
 )
 
 func main() {
@@ -24,7 +25,7 @@ func main() {
 
 	switch mode {
 	case "hook":
-		if err := catalog.CallHook(component, hookKind); err != nil {
+		if err := hooks.Call(hookComponent, hookKind); err != nil {
 			log.Fatal(err)
 		}
 	default:

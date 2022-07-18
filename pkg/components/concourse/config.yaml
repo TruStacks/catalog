@@ -11,14 +11,12 @@ version: 17.0.12
 values: |-
   concourse:
     web:
-      localAuth:
-        enabled: true
       auth:
         mainTeam:
           oidc:
             group: admins
         oidc:
-          enabled: true
+          enabled: false
           displayName: sso
           {{- if eq .sso "authentik"}}
           issuer: "{{- if eq .tls true -}}https{{- else -}}http{{- end -}}://authentik.{{ .domain }}:{{ .ingressPort }}/application/o/concourse"
@@ -39,6 +37,8 @@ values: |-
   fullnameOverride: concourse
   postgresql:
     fullnameOverride: concourse-postgresql
+  secrets:
+    create: false
 
 # helm hooks.
 hooks: []

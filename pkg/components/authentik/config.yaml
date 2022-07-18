@@ -13,6 +13,7 @@ values: |-
   authentik:
     secret_key: {{ randAlphaNum 32 }}
     postgresql:
+      host: authentik-postgresql
       password: {{ $postgresqlPassword }}
   ingress:
     enabled: true

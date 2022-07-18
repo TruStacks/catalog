@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/trustacks/catalog/pkg/catalog"
+	"github.com/trustacks/catalog/pkg/hooks"
 	"gopkg.in/yaml.v2"
 )
 
@@ -35,7 +36,7 @@ func Initialize(c *catalog.ComponentCatalog) {
 	c.AddComponent(componentName, component)
 
 	for hook, fn := range map[string]func() error{} {
-		if err := catalog.AddHook(componentName, hook, fn); err != nil {
+		if err := hooks.AddHook(componentName, hook, fn); err != nil {
 			log.Fatal(err)
 		}
 	}

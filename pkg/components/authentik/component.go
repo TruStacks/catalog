@@ -10,12 +10,12 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
 	"github.com/sethvargo/go-password/password"
 	"github.com/trustacks/catalog/pkg/catalog"
+	"github.com/trustacks/catalog/pkg/hooks"
 	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -28,6 +28,8 @@ const (
 	componentName = "authentik"
 	// inClusterNamespace is the path to the in-cluster namespace.
 	inClusterNamespace = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
+	// serviceURL is the authentik kubernetes service name.
+	serviceURL = "http://authentik"
 )
 
 // apiTokenSecret is the secret where the api token is stored.
@@ -82,7 +84,6 @@ func (c *authentik) postInstall() error {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Second)
 	defer cancel()
-	serviceURL := os.Getenv("SERVICE_URL")
 	if err := healthCheckService(serviceURL, 2, ctx); err != nil {
 		return err
 	}
@@ -352,8 +353,12 @@ func createApplication(provider int, name, url, token string) error {
 	return err
 }
 
-// CreateOIDCCLient creates a consumable end to end oidc client.
-func CreateOIDCCLient(name string) (interface{}, error) {
+type CreateOIDCClientParams struct {
+	Name string `json:"name"`
+}
+
+// CreateOIDCClient creates a consumable end to end oidc client.
+func CreateOIDCClient(params CreateOIDCClientParams) (map[string]interface{}, error) {
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		return nil, err
@@ -368,7 +373,6 @@ func CreateOIDCCLient(name string) (interface{}, error) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 300*time.Second)
 	defer cancel()
-	serviceURL := fmt.Sprintf(os.Getenv("RELEASE_NAME"), "authentik")
 	if err := healthCheckService(serviceURL, 2, ctx); err != nil {
 		return nil, err
 	}
@@ -384,25 +388,21 @@ func CreateOIDCCLient(name string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	pk, id, secret, err := createOIDCProvider(name, serviceURL, token, flow, mappings)
+	pk, id, secret, err := createOIDCProvider(params.Name, serviceURL, token, flow, mappings)
 	if err != nil {
 		return nil, err
 	}
-	if err := createApplication(pk, name, serviceURL, token); err != nil {
+	if err := createApplication(pk, params.Name, serviceURL, token); err != nil {
 		return nil, err
 	}
-	return map[string]interface{}{
-		"issuer":        fmt.Sprintf("http://authentik.local.gd:8081/application/o/%s/", name),
-		"client_id":     id,
-		"client_secret": secret,
-	}, nil
+	return map[string]interface{}{"clientId": id, "clientSecret": secret}, nil
 }
 
 //go:embed config.yaml
 var config []byte
 
 //go:embed hooks.yaml
-var hooks []byte
+var hookManifests []byte
 
 // Initialize adds the component to the catalog and configures hooks.
 func Initialize(c *catalog.ComponentCatalog) {
@@ -416,16 +416,16 @@ func Initialize(c *catalog.ComponentCatalog) {
 			Chart:   conf.Chart,
 			Version: conf.Version,
 			Values:  conf.Values,
-			Hooks:   string(hooks),
+			Hooks:   string(hookManifests),
 		},
 	}
 	c.AddComponent(componentName, component)
 
 	for hook, fn := range map[string]func() error{
-		catalog.PreInstallHook:  component.preInstall,
-		catalog.PostInstallHook: component.postInstall,
+		hooks.PreInstallHook:  component.preInstall,
+		hooks.PostInstallHook: component.postInstall,
 	} {
-		if err := catalog.AddHook(componentName, hook, fn); err != nil {
+		if err := hooks.AddHook(componentName, hook, fn); err != nil {
 			log.Fatal(err)
 		}
 	}

@@ -305,8 +305,34 @@ func getAuthorizationFlow(url, token string) (string, error) {
 	return "", errors.New("authorization flow not found")
 }
 
+type certificateKeypair struct {
+	PK   string `json:"pk"`
+	Name string `json:"name"`
+}
+
+type certificateKeypairs struct {
+	Results []certificateKeypair `json:"results"`
+}
+
+func getCertificateKeypair(url, token string) (string, error) {
+	resp, err := getAPIResource(url, "crypto/certificatekeypairs", token, "")
+	if err != nil {
+		return "", err
+	}
+	keyPairs := &certificateKeypairs{}
+	if err := json.Unmarshal(resp, &keyPairs); err != nil {
+		return "", err
+	}
+	for _, key := range keyPairs.Results {
+		if key.Name == "authentik Self-signed Certificate" {
+			return key.PK, err
+		}
+	}
+	return "", errors.New("certificate keypair not found")
+}
+
 // createOIDCProvier creates a new openid connection auth provider.
-func createOIDCProvider(name, url, token, flow string, mappings []string) (int, string, string, error) {
+func createOIDCProvider(name, url, token, flow, signingKey string, mappings []string) (int, string, string, error) {
 	client_id, err := password.Generate(40, 30, 0, false, true)
 	if err != nil {
 		return -1, "", "", err
@@ -322,6 +348,7 @@ func createOIDCProvider(name, url, token, flow string, mappings []string) (int, 
 		"client_id":          client_id,
 		"client_secret":      client_secret,
 		"property_mappings":  mappings,
+		"signing_key":        signingKey,
 	}
 	data, err := json.Marshal(body)
 	if err != nil {
@@ -384,11 +411,15 @@ func CreateOIDCClient(params CreateOIDCClientParams) (map[string]interface{}, er
 	if err != nil {
 		return nil, err
 	}
+	signingKey, err := getCertificateKeypair(serviceURL, token)
+	if err != nil {
+		return nil, err
+	}
 	flow, err := getAuthorizationFlow(serviceURL, token)
 	if err != nil {
 		return nil, err
 	}
-	pk, id, secret, err := createOIDCProvider(params.Name, serviceURL, token, flow, mappings)
+	pk, id, secret, err := createOIDCProvider(params.Name, serviceURL, token, flow, signingKey, mappings)
 	if err != nil {
 		return nil, err
 	}

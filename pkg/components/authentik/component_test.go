@@ -100,6 +100,20 @@ func TestGetAuthoroizationFlow(t *testing.T) {
 	assert.Equal(t, "123", pk, "got an unexpected flow pk")
 }
 
+func TestGetSigningKey(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if _, err := w.Write([]byte(`{"results": [{"pk": "123", "name": "authentik Self-signed Certificate"}]}`)); err != nil {
+			t.Fatal(err)
+		}
+	}))
+	defer ts.Close()
+	pk, err := getCertificateKeypair(ts.URL, "test-token")
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.Equal(t, "123", pk, "got an unexpected certificate keypair pk")
+}
+
 func TestCreateOIDCProvider(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if _, err := w.Write([]byte(`{"pk": 123}`)); err != nil {
@@ -113,7 +127,8 @@ func TestCreateOIDCProvider(t *testing.T) {
 		"32c4a700-5352-44d2-880a-c5dfb08328f9",
 	}
 	flow := "c53f70da-aa78-42c1-950a-f0c7e7e324a1"
-	pk, id, secret, err := createOIDCProvider("test", ts.URL, "test-token", flow, mappings)
+	signingKey := "62b33e8b-033b-4dc7-9580-0de0a3f457e6"
+	pk, id, secret, err := createOIDCProvider("test", ts.URL, "test-token", flow, signingKey, mappings)
 	if err != nil {
 		t.Fatal(err)
 	}

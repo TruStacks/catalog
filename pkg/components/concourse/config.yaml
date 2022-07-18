@@ -11,21 +11,34 @@ version: 17.0.12
 values: |-
   concourse:
     web:
+      localAuth:
+        enabled: false
       auth:
         mainTeam:
           oidc:
             group: admins
         oidc:
-          enabled: false
+          enabled: true
           displayName: sso
           {{- if eq .sso "authentik"}}
-          issuer: "{{- if eq .tls true -}}https{{- else -}}http{{- end -}}://authentik.{{ .domain }}:{{ .ingressPort }}/application/o/concourse"
+          issuer: "{{- if eq .tls true -}}https{{- else -}}http{{- end -}}://authentik.{{ .domain }}:{{ .ingressPort }}/application/o/concourse/"
           {{- end }}
+          userNameKey: preferred_username
       externalUrl: "{{- if eq .tls true -}}https{{- else -}}http{{- end -}}://concourse.{{ .domain }}:{{ .ingressPort }}"
       kubernetes:
         namespacePrefix: workflow-
         keepNamespace: false
   web:
+    sidecarContainers:                                                                                                                                                                         
+    - name: auth-proxy                                                                                                                                                                           
+      image: quay.io/trustacks/local-gd-proxy                                                                                                                                                    
+      env:                                                                                                                                                                                       
+      - name: UPSTREAM                                                                                                                                                                             
+        value: authentik
+      - name: LISTEN_PORT
+        value: "8081"
+      - name: SERVICE
+        value: authentik 
     ingress:
       enabled: true
       hosts:

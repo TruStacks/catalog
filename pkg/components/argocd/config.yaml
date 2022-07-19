@@ -11,7 +11,7 @@ version: 4.9.12
 values: |-
   server:
     extraArgs:
-    {{- if .tls false}}
+    {{- if eq .tls false}}
     - --insecure
     {{- end}}
     ingress:
@@ -21,7 +21,7 @@ values: |-
       paths:
       - /
     config:
-    {{- if .tls true}}
+    {{- if eq .tls true}}
       url: "https://argo-cd.{{ .domain }}:{{ .ingressPort }}"
     {{- else}}
       url: "http://argo-cd.{{ .domain }}:{{ .ingressPort }}"

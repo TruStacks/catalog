@@ -73,6 +73,9 @@ func createOIDCClientSecret(clientId, clientSecret, namespace string, clientset 
 	secret := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "oidc-client",
+			Labels: map[string]string{
+				"app.kubernetes.io/part-of": "argocd",
+			},
 		},
 		Data: map[string][]byte{
 			"id":     []byte(clientId),

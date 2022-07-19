@@ -57,4 +57,5 @@ func TestCreateOIDCClientSecret(t *testing.T) {
 	}
 	assert.Equal(t, "test-id", string(secret.Data["id"]), "got an unexpected client id")
 	assert.Equal(t, "test-secret", string(secret.Data["secret"]), "got an unexpected client secret")
+	assert.Equal(t, "argocd", secret.Labels["app.kubernetes.io/part-of"], "got an unexpected part-of label")
 }

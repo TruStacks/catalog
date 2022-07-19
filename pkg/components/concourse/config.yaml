@@ -33,12 +33,16 @@ values: |-
     - name: auth-proxy                                                                                                                                                                           
       image: quay.io/trustacks/local-gd-proxy                                                                                                                                                    
       env:                                                                                                                                                                                       
-      - name: UPSTREAM                                                                                                                                                                             
+      - name: UPSTREAM
+        {{- if eq .sso "authentik"}}                                                                                                                                                                             
         value: authentik
+        {{- end }}
       - name: LISTEN_PORT
-        value: "8081"
+        value: "{{ .ingressPort }}"
       - name: SERVICE
+        {{- if eq .sso "authentik"}} 
         value: authentik 
+        {{- end }}
     ingress:
       enabled: true
       hosts:

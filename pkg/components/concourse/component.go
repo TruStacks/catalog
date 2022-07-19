@@ -36,7 +36,7 @@ type concourse struct {
 	catalog.BaseComponent
 }
 
-// preInstall .
+// preInstall creates the concourse oidc client and secrets.
 func (c *concourse) preInstall() error {
 	config, err := rest.InClusterConfig()
 	if err != nil {
@@ -61,7 +61,7 @@ func (c *concourse) preInstall() error {
 	return nil
 }
 
-// generateRSAKeyPair .
+// generateRSAKeyPair creates an RSA private and public key pair.
 func generateRSAKeyPair() ([]byte, []byte, error) {
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -82,7 +82,7 @@ func generateRSAKeyPair() ([]byte, []byte, error) {
 	return privateKeyBuf.Bytes(), ssh.MarshalAuthorizedKey(publicKey), nil
 }
 
-// createSecrets .
+// createSecrets creates the web and worker secrets.
 func createSecrets(clientId, clientSecret, namespace string, clientset kubernetes.Interface) error {
 	hostKey, hostKeyPub, err := generateRSAKeyPair()
 	if err != nil {
@@ -125,10 +125,10 @@ func createSecrets(clientId, clientSecret, namespace string, clientset kubernete
 	return nil
 }
 
-// createOIDCClient .
+// createOIDCClient creates the concourse oidc client.
 func createOIDCClient(provider string) (string, string, error) {
 	result, err := functions.Call("create-oidc-client", map[string]interface{}{
-		"name":     "concourse",
+		"name":     componentName,
 		"provider": provider,
 	})
 	if err != nil {

@@ -53,7 +53,7 @@ func (c *authentik) preInstall() error {
 	if err != nil {
 		return err
 	}
-	log.Printf("create admin api token")
+	log.Println("create admin api token")
 	res, err := password.Generate(32, 10, 0, false, false)
 	if err != nil {
 		return err

@@ -11,10 +11,12 @@ rules:
 - apiGroups:
   - ""
   resources:
+  - configmaps
   - secrets
   verbs:
   - create
   - get
+  - patch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -64,4 +66,27 @@ spec:
           value: pre-install
         - name: SSO_PROVIDER
           value: {{ .sso }}
+      serviceAccount: argo-cd-hook-rbac
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: argo-cd-post-install
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "2"
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: post-install
+        image: {{ .image }}
+        env:
+        - name: CATALOG_MODE
+          value: hook
+        - name: HOOK_COMPONENT
+          value: argo-cd
+        - name: HOOK_KIND
+          value: post-install
       serviceAccount: argo-cd-hook-rbac

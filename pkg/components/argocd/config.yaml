@@ -26,6 +26,7 @@ values: |-
     {{- else}}
       url: "http://argo-cd.{{ .domain }}:{{ .ingressPort }}"
     {{- end}}
+      accounts.trustacks: login
       kustomize.buildOptions: "--enable-alpha-plugins"
       oidc.config: |
         name: sso
@@ -41,6 +42,27 @@ values: |-
         - openid
         - profile
         - email
+    rbacConfig:
+      policy.csv: |
+          p, role:admin, applications, *, */*, allow
+          p, role:admin, clusters, *, *, allow
+          p, role:admin, accounts, *, *, allow
+          p, role:admin, repositories, *, *, allow
+          p, role:admin, certificates, *, *, allow
+          p, role:admin, accounts, *, *, allow
+          p, role:admin, gpgkeys, *, *, allow
+
+          p, role:editor, applications, create, */*, allow
+          p, role:editor, applications, update, */*, allow
+          p, role:editor, applications, sync, */*, allow
+          p, role:editor, clusters, create, *, allow
+
+          p, role:viewer, applications, get, */*, allow
+
+          g, admins , role:admin
+          g, editors, role:editor
+          g, viewers, role:viewer
+          g, editors, user:trustacks
     extraContainers:
     - name: auth-proxy
       image: quay.io/trustacks/local-gd-proxy
@@ -88,4 +110,3 @@ values: |-
     - mountPath: /.config/kustomize/plugin/viaduct.ai/v1/ksops/ksops
       name: custom-tools
       subPath: ksops
-

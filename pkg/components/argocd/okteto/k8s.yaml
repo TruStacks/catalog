@@ -2,13 +2,13 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: arogcd-okteto-dev
+  name: argo-cd-okteto-dev
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: okteto-dev
-  namespace: arogcd-okteto-dev
+  namespace: argo-cd-okteto-dev
 spec:
   replicas: 1
   selector:
@@ -22,3 +22,38 @@ spec:
       containers:
       - image: busybox
         name: okteto-dev
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: okteto-dev
+  namespace: argo-cd-okteto-dev
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - get
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: okteto-dev
+  namespace: argo-cd-okteto-dev
+subjects:
+- kind: ServiceAccount
+  name: okteto-dev
+  namespace: argo-cd-okteto-dev
+roleRef:
+  kind: Role
+  name: okteto-dev
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: okteto-dev
+  namespace: argo-cd-okteto-dev

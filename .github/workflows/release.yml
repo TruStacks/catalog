@@ -46,7 +46,7 @@ jobs:
   release:
     name: Deploy the container instance
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: [build, bump-version]
     steps:
       - name: 'Login via Azure CLI'
         uses: azure/login@v1

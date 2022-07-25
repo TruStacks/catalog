@@ -47,6 +47,7 @@ metadata:
   name: authentik-pre-install
   annotations:
     "helm.sh/hook": pre-install
+    "helm.sh/hook-delete-policy": hook-succeeded
     "helm.sh/hook-weight": "2"
 spec:
   template:
@@ -70,6 +71,7 @@ metadata:
   name: authentik-post-install
   annotations:
     "helm.sh/hook": post-install
+    "helm.sh/hook-delete-policy": hook-succeeded
     "helm.sh/hook-weight": "2"
 spec:
   template:

@@ -37,28 +37,45 @@ jobs:
           
       - name: Run Lint
         uses: golangci/golangci-lint-action@v3
+
+  bump-version:
+    if: "!startsWith(github.event.head_commit.message, 'bump:')"
+    name: Bump the version and create the changelog with commitizen
+    runs-on: ubuntu-latest
+    needs: [unit_test, lint]
+    steps:
+    - name: Check out the rpoe
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
     
+    - name: Create bump and changelog
+      uses: commitizen-tools/commitizen-action@master
+      with:
+        github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+
   build:
     name: Push the container image to Quay
     runs-on: ubuntu-latest
-    needs: [unit_test, lint]
+    needs: [bump-version]
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
       
       - name: Log in to Docker Hub
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        uses: docker/login-action@v2
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_PASSWORD }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        uses: docker/build-push-action@v3
         with:
           context: .
           push: true
-          tags: quay.io/trustacks/catalog:latest
+          tags: 'quay.io/trustacks/catalog:latest,quay.io/trustacks/catalog:${{ env.REVISION }}'
 
   deploy:
     name: Deploy the container instance
@@ -80,4 +97,4 @@ jobs:
           location: 'east us 2'
           restart-policy: OnFailure
           memory: 1
-          environment-variables: 'CATALOG_HOOK_SOURCE=quay.io/trustacks/catalog:latest'
+          environment-variables: 'CATALOG_HOOK_SOURCE=quay.io/trustacks/catalog:latest CATALOG_VERSION=${{ env.REVISION }}'

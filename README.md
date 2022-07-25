@@ -4,7 +4,7 @@ The catalog is used for the discovery of [Softwre Delivery Toolchain](https://gi
 
 ## Components
 
-Components are software services that are used in the software delivery toolchain. Each component must have a *helm repository*, a *helm chart*, *helm version*, and *hooks*.
+Components are software services that are used in the software delivery toolchain. Each component must have a *helm repository*, a *helm chart*, *helm version*, and, when applicable, *hooks*.
 
 The component must be tested to verify the integrity of any implemented hook functions with the specified *helm version*.
 
@@ -30,12 +30,4 @@ The desired hook must implemented for the provided component. The [Base Componen
 
 ## Parameters
 
-Configuration parameters are defined in the toolchain install config. The provided parameters are used in the component values. The available parameters are defined in [catalog.yaml](https://github.com/TruStacks/catalog/blob/main/pkg/catalog/catalog.yaml).
-
-## Chart dependencies
-
-Toolchains that use this catalog must provide the following helm chart dependencies:
-
-| name | source | version |
-| - | - | - |
-| common | https://library-charts.k8s-at-home.com | >= 4.2.0
+Configuration parameters are defined in the toolchain install config. The provided parameters are used in the component values. The available parameters are defined in [catalog.yaml](https://raw.githubusercontent.com/TruStacks/catalog/main/pkg/catalog/catalog.yaml).

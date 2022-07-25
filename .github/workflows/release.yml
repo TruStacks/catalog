@@ -18,6 +18,8 @@ jobs:
       uses: commitizen-tools/commitizen-action@master
       with:
         github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+    outputs:
+      version: ${{ env.REVISION }}
 
   build:
     name: Push the container image to Quay
@@ -39,7 +41,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: 'quay.io/trustacks/catalog:latest,quay.io/trustacks/catalog:${{ env.REVISION }}'
+          tags: 'quay.io/trustacks/catalog:latest,quay.io/trustacks/catalog:${{needs.bump-version.outputs.version}}'
 
   release:
     name: Deploy the container instance
@@ -61,4 +63,4 @@ jobs:
           location: 'east us 2'
           restart-policy: OnFailure
           memory: 1
-          environment-variables: 'CATALOG_HOOK_SOURCE=quay.io/trustacks/catalog:latest CATALOG_VERSION=${{ env.REVISION }}'
+          environment-variables: 'CATALOG_HOOK_SOURCE=quay.io/trustacks/catalog:latest CATALOG_VERSION=${{needs.bump-version.outputs.version}}'

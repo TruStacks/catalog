@@ -8,6 +8,7 @@ on:
 
 jobs:
   unit_test:
+    if: "!startsWith(github.event.head_commit.message, 'bump:')"
     name: Unit Test
     runs-on: ubuntu-latest
     steps:
@@ -24,6 +25,7 @@ jobs:
           go test -v ./...
   
   lint:
+    if: "!startsWith(github.event.head_commit.message, 'bump:')"
     name: Lint
     runs-on: ubuntu-latest
     steps:

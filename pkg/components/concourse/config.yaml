@@ -12,9 +12,10 @@ values: |-
   concourse:
     web:
       localAuth:
-        enabled: false
+        enabled: true
       auth:
         mainTeam:
+          localUser: trustacks
           oidc:
             group: admins
         oidc:

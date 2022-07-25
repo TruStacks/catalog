@@ -47,6 +47,7 @@ metadata:
   name: concourse-pre-install
   annotations:
     "helm.sh/hook": pre-install
+    "helm.sh/hook-delete-policy": hook-succeeded
     "helm.sh/hook-weight": "2"
 spec:
   template:

@@ -9,11 +9,13 @@ import (
 	_ "embed"
 	"encoding/pem"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"strings"
 
+	"github.com/sethvargo/go-password/password"
 	"github.com/trustacks/catalog/pkg/catalog"
 	"github.com/trustacks/catalog/pkg/functions"
 	"github.com/trustacks/catalog/pkg/hooks"
@@ -106,6 +108,7 @@ func createSecrets(clientId, clientSecret, namespace string, clientset kubernete
 			"worker-key-pub":      workerKeyPub,
 			"oidc-client-id":      []byte(clientId),
 			"oidc-client-secret":  []byte(clientSecret),
+			"local-users":         []byte(fmt.Sprintf("trustacks:%s", password.MustGenerate(32, 10, 0, false, false))),
 		},
 	}
 	workerSecrets := &corev1.Secret{

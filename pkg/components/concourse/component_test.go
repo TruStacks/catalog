@@ -50,6 +50,7 @@ func TestCreateSecrets(t *testing.T) {
 	assert.Contains(t, string(webSecrets.Data["host-key"]), "-----BEGIN RSA PRIVATE KEY-----", "got an unexpected host key")
 	assert.Contains(t, string(webSecrets.Data["session-signing-key"]), "-----BEGIN RSA PRIVATE KEY-----", "got an unexpected sessions signing key")
 	assert.Contains(t, string(webSecrets.Data["worker-key-pub"]), "ssh-rsa", "got an unexpected worker public key")
+	assert.Contains(t, string(webSecrets.Data["local-users"]), "trustacks:", "got an unexpected local user value")
 	assert.Equal(t, "test-id", string(webSecrets.Data["oidc-client-id"]), "got an unexpected oidc client id")
 	assert.Equal(t, "test-secret", string(webSecrets.Data["oidc-client-secret"]), "got an unexpected oidc client secret")
 

@@ -2,6 +2,7 @@ package catalog
 
 import (
 	_ "embed"
+	"fmt"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -9,7 +10,7 @@ import (
 
 var (
 	// catalogHookSource is the source for the hook container.
-	catalogHookSource = os.Getenv("CATALOG_HOOK_SOURCE")
+	catalogHookSource = fmt.Sprintf("%s:%s", os.Getenv("CATALOG_HOOK_SOURCE"), os.Getenv("CATALOG_VERSION"))
 )
 
 // component contains methods for components when running in hook
@@ -39,7 +40,6 @@ type componentCatalogConfig struct {
 
 // ComponentCatalog contains the component manifests.
 type ComponentCatalog struct {
-	Version    string                  `json:"version"`
 	HookSource string                  `json:"hookSource"`
 	Components map[string]component    `json:"components"`
 	Config     *componentCatalogConfig `json:"config"`
@@ -69,7 +69,6 @@ func NewComponentCatalog() (*ComponentCatalog, error) {
 		return nil, err
 	}
 	return &ComponentCatalog{
-		Version:    os.Getenv("CATALOG_VERSION"),
 		HookSource: catalogHookSource,
 		Components: make(map[string]component),
 		Config:     config,

@@ -1,3 +1,9 @@
+## 1.0.2 (2022-07-26)
+
+### Fix
+
+- change the catalog hook source version tag (#1)
+
 ## 1.0.1 (2022-07-26)
 
 ### Fix

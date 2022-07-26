@@ -1,3 +1,9 @@
+## 1.0.1 (2022-07-26)
+
+### Fix
+
+- move the catalog version to the catalog hook source
+
 ## 1.0.0 (2022-07-26)
 
 ### Feat

@@ -2,7 +2,6 @@ package catalog
 
 import (
 	_ "embed"
-	"fmt"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -10,7 +9,7 @@ import (
 
 var (
 	// catalogHookSource is the source for the hook container.
-	catalogHookSource = fmt.Sprintf("%s:%s", os.Getenv("CATALOG_HOOK_SOURCE"), os.Getenv("CATALOG_VERSION"))
+	catalogHookSource = os.Getenv("CATALOG_HOOK_SOURCE")
 )
 
 // component contains methods for components when running in hook

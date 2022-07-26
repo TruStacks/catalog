@@ -63,4 +63,4 @@ jobs:
           location: 'east us 2'
           restart-policy: OnFailure
           memory: 1
-          environment-variables: CATALOG_HOOK_SOURCE=quay.io/trustacks/catalog:latest CATALOG_VERSION=${{needs.bump-version.outputs.version}}
+          environment-variables: CATALOG_HOOK_SOURCE=quay.io/trustacks/catalog:${{needs.bump-version.outputs.version}}

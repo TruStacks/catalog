@@ -1,3 +1,9 @@
+<p><img src="https://i.imgur.com/awXcDpX.png" height="" alt="trustacks logo"/></p>
+
+---
+
+![Go Report Card](https://goreportcard.com/badge/github.com/trustacks/catalog?style=for-the-badge)
+
 # Catalog
 
 The catalog is used for the discovery of [Softwre Delivery Toolchain](https://github.com/TruStacks/factories) components.

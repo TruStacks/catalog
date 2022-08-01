@@ -27,7 +27,7 @@ values: |-
           userNameKey: preferred_username
       externalUrl: "{{- if eq .tls true -}}https{{- else -}}http{{- end -}}://concourse.{{ .domain }}:{{ .ingressPort }}"
       kubernetes:
-        namespacePrefix: workflow-
+        namespacePrefix: trustacks-application-
         keepNamespace: false
   web:
     sidecarContainers:                                                                                                                                                                         

@@ -10,9 +10,9 @@ var ssoProviderHandlers = map[string]func(params map[string]interface{}) (interf
 	"authentik": createAuthentikOIDCClient,
 }
 
-// CreateOIDCClient creates an openid connection authentication
+// createOIDCClient creates an openid connection authentication
 // client.
-func CreateOIDCClient(params map[string]interface{}) (interface{}, error) {
+func createOIDCClient(params map[string]interface{}) (interface{}, error) {
 	provider, ok := params["provider"]
 	if !ok {
 		return nil, errors.New("provider is required")
@@ -32,5 +32,5 @@ func createAuthentikOIDCClient(params map[string]interface{}) (interface{}, erro
 }
 
 func init() {
-	registerMethod("create-oidc-client", CreateOIDCClient)
+	registerMethod("create-oidc-client", createOIDCClient)
 }

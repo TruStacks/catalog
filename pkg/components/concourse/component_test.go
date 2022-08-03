@@ -175,10 +175,10 @@ func TestCreateApplication(t *testing.T) {
 	if err := createApplication("test", "test", clientset, "test-fly", mockRunFlyCmd); err != nil {
 		t.Fatal(err)
 	}
-	assert.Equal(t, "test-fly login -c http://concourse-web --username trustacks --password test", calls[0], "expected call to exist")
+	assert.Equal(t, "test-fly login -c http://concourse-web:8080 --username trustacks --password test", calls[0], "expected call to exist")
 	assert.Equal(t, "test-fly sync", calls[1], "expected call to exist")
 	assert.Equal(t, "test-fly set-team --team-name test-test --local-user trustacks --non-interactive", calls[2], "expected call to exist")
-	assert.Regexp(t, `test-fly set-pipeline --team test-test -p test -c /tmp/pipeline\d{10} --non-interactive --load-vars-from /tmp/application-vars\d{10}`, calls[3], "expected call to exist")
+	assert.Regexp(t, `test-fly set-pipeline --team test-test -p test -c /tmp/pipeline[0-9]+ --non-interactive --load-vars-from /tmp/application-vars[0-9]+`, calls[3], "expected call to exist")
 	assert.Equal(t, "test-fly unpause-pipeline -p test --team test-test", calls[4], "expected call to exist")
 }
 

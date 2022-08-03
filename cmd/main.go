@@ -6,14 +6,17 @@ import (
 
 	"github.com/trustacks/catalog/pkg/catalog"
 	"github.com/trustacks/catalog/pkg/components"
+	"github.com/trustacks/catalog/pkg/functions"
 	"github.com/trustacks/catalog/pkg/hooks"
 	"github.com/trustacks/catalog/server"
 )
 
 var (
-	mode          = os.Getenv("CATALOG_MODE")
-	hookComponent = os.Getenv("HOOK_COMPONENT")
-	hookKind      = os.Getenv("HOOK_KIND")
+	mode           = os.Getenv("CATALOG_MODE")
+	hookComponent  = os.Getenv("HOOK_COMPONENT")
+	hookKind       = os.Getenv("HOOK_KIND")
+	functionName   = os.Getenv("FUNCTION_NAME")
+	functionParams = os.Getenv("FUNCTION_PARAMS")
 )
 
 func main() {
@@ -26,6 +29,10 @@ func main() {
 	switch mode {
 	case "hook":
 		if err := hooks.Call(hookComponent, hookKind); err != nil {
+			log.Fatal(err)
+		}
+	case "function":
+		if _, err := functions.Call(functionName, []byte(functionParams)); err != nil {
 			log.Fatal(err)
 		}
 	default:

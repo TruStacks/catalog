@@ -2,13 +2,9 @@ package functions
 
 import (
 	"errors"
-
-	"github.com/trustacks/catalog/pkg/components/authentik"
 )
 
-var ssoProviderHandlers = map[string]func(params map[string]interface{}) (interface{}, error){
-	"authentik": createAuthentikOIDCClient,
-}
+var createOIDCclientHandlers = map[string]func(params map[string]interface{}) (interface{}, error){}
 
 // createOIDCClient creates an openid connection authentication
 // client.
@@ -17,18 +13,17 @@ func createOIDCClient(params map[string]interface{}) (interface{}, error) {
 	if !ok {
 		return nil, errors.New("provider is required")
 	}
-	method, ok := ssoProviderHandlers[provider.(string)]
+	method, ok := createOIDCclientHandlers[provider.(string)]
 	if !ok {
 		return nil, errors.New("method handler not foud")
 	}
 	return method(params)
 }
 
-func createAuthentikOIDCClient(params map[string]interface{}) (interface{}, error) {
-	p := authentik.CreateOIDCClientParams{
-		Name: params["name"].(string),
-	}
-	return authentik.CreateOIDCClient(p)
+// AddCreateOIDCClientHandler adds the create oidc client handler
+// method.
+func AddCreateOIDCClientHandler(name string, handler func(params map[string]interface{}) (interface{}, error)) {
+	createOIDCclientHandlers[name] = handler
 }
 
 func init() {

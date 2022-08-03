@@ -1,0 +1,57 @@
+resource_types:
+- name: static
+  type: docker-image
+  source: { repository: ktchen14/static-resource }
+
+resources:
+- name: image
+  type: registry-image
+  source:
+    repository: ((application-vars."image"))
+    tag: ((application-vars."imageTag"))
+
+- name: source
+  type: git
+  source:
+    branch: main
+    private_key: ((application-secrets."gitPrivateKey"))
+    uri: ((application-vars."gitRemote"))
+
+- name: vars
+  type: static
+  source:
+    {{- range .vars }}
+    {{ . }}: ((application-vars."{{ . }}"))
+    {{- end }}
+
+- name: secrets
+  type: static
+  source:
+    {{- range .secrets }}
+    {{ . }}: ((application-secrets."{{ . }}"))
+    {{- end }}
+
+jobs:
+- name: dagger
+  plan:
+  - get: source
+  - get: image
+  - get: vars
+  - get: secrets
+  - task: build
+    config:
+      inputs:
+      - name: source
+      - name: vars
+        path: /mnt/vars
+      - name: secrets
+        path: /mnt/secrets
+      platform: linux
+      run:
+        path: /bin/sh
+        args: ["-c", "cd source && docker-entrypoint build"]
+    image: image
+    params:
+      DOCKER_HOST: tcp://dind:2375
+      WORKFLOW: ((application-vars."workflow"))
+    privileged: true

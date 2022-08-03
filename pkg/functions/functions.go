@@ -1,6 +1,7 @@
 package functions
 
 import (
+	"encoding/json"
 	"errors"
 )
 
@@ -35,6 +36,12 @@ func registerMethod(name string, fn func(map[string]interface{}) (interface{}, e
 
 // Call sends the method parameters the function dispatcher for
 // execution.
-func Call(name string, params map[string]interface{}) (interface{}, error) {
+func Call(name string, data []byte) (interface{}, error) {
+	params := map[string]interface{}{}
+	if data != nil {
+		if err := json.Unmarshal(data, &params); err != nil {
+			return nil, err
+		}
+	}
 	return dispatcher.call(name, params)
 }

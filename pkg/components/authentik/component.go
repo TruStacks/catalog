@@ -15,6 +15,7 @@ import (
 
 	"github.com/sethvargo/go-password/password"
 	"github.com/trustacks/catalog/pkg/catalog"
+	"github.com/trustacks/catalog/pkg/functions"
 	"github.com/trustacks/catalog/pkg/hooks"
 	"gopkg.in/yaml.v3"
 	corev1 "k8s.io/api/core/v1"
@@ -384,8 +385,16 @@ type CreateOIDCClientParams struct {
 	Name string `json:"name"`
 }
 
+func createOIDCClientHandler(params map[string]interface{}) (interface{}, error) {
+	name, ok := params["name"].(string)
+	if !ok {
+		return nil, errors.New("name is required")
+	}
+	return createOIDCClient(name)
+}
+
 // CreateOIDCClient creates a consumable end to end oidc client.
-func CreateOIDCClient(params CreateOIDCClientParams) (map[string]interface{}, error) {
+func createOIDCClient(name string) (map[string]interface{}, error) {
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		return nil, err
@@ -419,11 +428,11 @@ func CreateOIDCClient(params CreateOIDCClientParams) (map[string]interface{}, er
 	if err != nil {
 		return nil, err
 	}
-	pk, id, secret, err := createOIDCProvider(params.Name, serviceURL, token, flow, signingKey, mappings)
+	pk, id, secret, err := createOIDCProvider(name, serviceURL, token, flow, signingKey, mappings)
 	if err != nil {
 		return nil, err
 	}
-	if err := createApplication(pk, params.Name, serviceURL, token); err != nil {
+	if err := createApplication(pk, name, serviceURL, token); err != nil {
 		return nil, err
 	}
 	return map[string]interface{}{"clientId": id, "clientSecret": secret}, nil
@@ -452,6 +461,7 @@ func Initialize(c *catalog.ComponentCatalog) {
 	}
 	c.AddComponent(componentName, component)
 
+	// configure hooks.
 	for hook, fn := range map[string]func() error{
 		hooks.PreInstallHook:  component.preInstall,
 		hooks.PostInstallHook: component.postInstall,
@@ -460,4 +470,7 @@ func Initialize(c *catalog.ComponentCatalog) {
 			log.Fatal(err)
 		}
 	}
+
+	// configure functions.
+	functions.AddCreateOIDCClientHandler("authentik", createOIDCClientHandler)
 }

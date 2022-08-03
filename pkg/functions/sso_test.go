@@ -7,10 +7,10 @@ import (
 )
 
 func TestSSOHandler(t *testing.T) {
-	ssoProviderHandlers["test"] = func(params map[string]interface{}) (interface{}, error) {
+	createOIDCclientHandlers["test"] = func(params map[string]interface{}) (interface{}, error) {
 		return 42, nil
 	}
-	result, err := Call("create-oidc-client", map[string]interface{}{"provider": "test"})
+	result, err := Call("create-oidc-client", []byte(`{"provider": "test"}`))
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -1,8 +1,10 @@
 package functions
 
-import "errors"
+import (
+	"errors"
+)
 
-var applicationHandlers = map[string]func(params map[string]interface{}) (interface{}, error){}
+var createApplicationHandler = make(map[string]func(params map[string]interface{}) (interface{}, error))
 
 // CreateApplication creates an openid connection authentication
 // client.
@@ -11,11 +13,17 @@ func CreateApplication(params map[string]interface{}) (interface{}, error) {
 	if !ok {
 		return nil, errors.New("provider is required")
 	}
-	method, ok := applicationHandlers[provider.(string)]
+	method, ok := createApplicationHandler[provider.(string)]
 	if !ok {
 		return nil, errors.New("method handler not foud")
 	}
 	return method(params)
+}
+
+// AddCreateApplicationHandler adds the create application handler
+// method.
+func AddCreateApplicationHandler(name string, handler func(params map[string]interface{}) (interface{}, error)) {
+	createApplicationHandler[name] = handler
 }
 
 func init() {

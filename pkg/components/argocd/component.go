@@ -103,10 +103,8 @@ func (c *argocd) postInstall() error {
 
 // createOIDCClient creates the concourse oidc client.
 func createOIDCClient(provider string) (string, string, error) {
-	result, err := functions.Call("create-oidc-client", map[string]interface{}{
-		"name":     componentName,
-		"provider": provider,
-	})
+	params := []byte(fmt.Sprintf(`{"name": "%s", "provider": "%s"}`, componentName, provider))
+	result, err := functions.Call("create-oidc-client", params)
 	if err != nil {
 		return "", "", err
 	}

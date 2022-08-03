@@ -7,10 +7,10 @@ import (
 )
 
 func TestCreateApplication(t *testing.T) {
-	applicationHandlers["test"] = func(params map[string]interface{}) (interface{}, error) {
+	createApplicationHandler["test"] = func(params map[string]interface{}) (interface{}, error) {
 		return 42, nil
 	}
-	result, err := Call("create-application", map[string]interface{}{"provider": "test"})
+	result, err := Call("create-application", []byte(`{"provider": "test"}`))
 	if err != nil {
 		t.Fatal(err)
 	}

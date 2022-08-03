@@ -1,4 +1,10 @@
 #!/bin/sh
 
-kubectl apply -f k8s.yaml
-okteto up
+component="concourse"
+service_account="okteto-dev"
+
+if [ -z $namespace ]; then namespace="$component-okteko-dev"; fi
+if [ ! -z $sa ]; then service_account=$sa; fi
+
+cat k8s.yaml | sed -e s/'$NAMESPACE'/$namespace/ -e s/'$SERVICE_ACCOUNT'/$service_account/ | kubectl apply -f -
+okteto up --namespace $namespace

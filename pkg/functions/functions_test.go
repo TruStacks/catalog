@@ -12,7 +12,7 @@ func TestCallRegisteredMethod(t *testing.T) {
 		return fmt.Sprintf("hello %s!", params["name"].(string)), nil
 	}
 	registerMethod("test", mockFunction)
-	result, err := Call("test", map[string]interface{}{"name": "world"})
+	result, err := Call("test", []byte(`{"name": "world"}`))
 	if err != nil {
 		t.Fatal(err)
 	}

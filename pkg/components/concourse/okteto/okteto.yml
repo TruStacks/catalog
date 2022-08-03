@@ -1,5 +1,4 @@
-name: okteto-dev
-namespace: concourse-okteto-dev
+name: concourse-okteto-dev
 image: okteto/golang:1
 command: bash
 securityContext:

@@ -3,6 +3,7 @@ module github.com/trustacks/catalog
 go 1.18
 
 require (
+	github.com/mitchellh/mapstructure v1.1.2
 	github.com/sethvargo/go-password v0.2.0
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/crypto v0.0.0-20220214200702-86341886e292

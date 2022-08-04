@@ -3,11 +3,12 @@ package catalog
 // baseComponent contains default fields and methods for implemented
 // components.
 type BaseComponent struct {
-	Repo    string `json:"repository"`
-	Chart   string `json:"chart"`
-	Version string `json:"version"`
-	Values  string `json:"values"`
-	Hooks   string `json:"hooks"`
+	Repo             string `json:"repository"`
+	Chart            string `json:"chart"`
+	Version          string `json:"version"`
+	Values           string `json:"values"`
+	Hooks            string `json:"hooks"`
+	ApplicationHooks string `json:"applicationHooks,omitempty"`
 }
 
 // repo returns the component's helm repository.

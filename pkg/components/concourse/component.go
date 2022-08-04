@@ -362,6 +362,9 @@ var config []byte
 //go:embed hooks.yaml
 var hookManifests []byte
 
+//go:embed application-hooks.yaml
+var applicationHookManifests []byte
+
 // Initialize adds the component to the catalog and configures hooks.
 func Initialize(c *catalog.ComponentCatalog) {
 	var conf *catalog.ComponentConfig
@@ -370,11 +373,12 @@ func Initialize(c *catalog.ComponentCatalog) {
 	}
 	component := &concourse{
 		catalog.BaseComponent{
-			Repo:    conf.Repo,
-			Chart:   conf.Chart,
-			Version: conf.Version,
-			Values:  conf.Values,
-			Hooks:   string(hookManifests),
+			Repo:             conf.Repo,
+			Chart:            conf.Chart,
+			Version:          conf.Version,
+			Values:           conf.Values,
+			Hooks:            string(hookManifests),
+			ApplicationHooks: string(applicationHookManifests),
 		},
 	}
 	c.AddComponent(componentName, component)

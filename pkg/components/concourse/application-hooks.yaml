@@ -1,24 +1,160 @@
----
-apiVersion: batch/v1
-kind: Job
+apiVersion: v1
+kind: Namespace
 metadata:
-  name: application-{{ .application }}-post-install
+  name: trustacks-application-{{ .toolchain }}-{{ .application }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: application-{{ .application }}-ci-driver
+  namespace: trustacks-toolchain-{{ .toolchain }}
   annotations:
     helm.sh/hook: post-install
     helm.sh/hook-delete-policy: hook-succeeded
-    helm.sh/hook-weight: "2"
-  spec:
-    template:
-      spec:
-        restartPolicy: Never
-        containers:
-        - name: post-install
-          image: {{ .image }}
-          env:
-          - name: CATALOG_MODE
-            value: function
-          - name: FUNCTION_NAME
-            value: create-application
-          - name: FUNCTION_PARAMS
-            value: '{"provider": "concourse", "toolchain": "{{ .toolchain }}", "name": "{{ .application }}"}'
-        serviceAccount: application-ci-driver
+    helm.sh/hook-weight: "1"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: application-{{ .application }}-ci-driver
+  namespace: trustacks-application-{{ .toolchain }}-{{ .application }}
+  annotations:
+    helm.sh/hook: post-install
+    helm.sh/hook-delete-policy: hook-succeeded
+    helm.sh/hook-weight: "1"
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - secrets
+  verbs:
+  - get
+  - create
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: application-{{ .application }}-ci-driver
+  namespace: trustacks-application-{{ .toolchain }}-{{ .application }}
+  annotations:
+    helm.sh/hook: post-install
+    helm.sh/hook-delete-policy: hook-succeeded
+    helm.sh/hook-weight: "1"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: application-{{ .application }}-ci-driver
+subjects:
+- kind: ServiceAccount
+  name: application-{{ .application }}-ci-driver
+  namespace: trustacks-toolchain-{{ .toolchain }} 
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: application-{{ .application }}-ci-driver
+  namespace: trustacks-toolchain-{{ .toolchain }}
+  annotations:
+    helm.sh/hook: post-install
+    helm.sh/hook-delete-policy: hook-succeeded
+    helm.sh/hook-weight: "1"
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  resourceNames:
+  - system-vars
+  - application-{{ .application }}-vars
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+  resourceNames:
+  - concourse-web
+  - system-secrets
+  - application-{{ .application }}-secrets
+  - sops-age
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: application-{{ .application }}-ci-driver
+  namespace: trustacks-toolchain-{{ .toolchain }}
+  annotations:
+    helm.sh/hook: post-install
+    helm.sh/hook-delete-policy: hook-succeeded
+    helm.sh/hook-weight: "1"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: application-{{ .application }}-ci-driver
+subjects:
+- kind: ServiceAccount
+  name: application-{{ .application }}-ci-driver
+  namespace: trustacks-toolchain-{{ .toolchain }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: concourse-web
+  namespace: trustacks-application-{{ .toolchain }}-{{ .application }}
+  annotations:
+    helm.sh/hook: post-install
+    helm.sh/hook-delete-policy: hook-succeeded
+    helm.sh/hook-weight: "1"
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: concourse-web
+  namespace: trustacks-application-{{ .toolchain }}-{{ .application }}
+  annotations:
+    helm.sh/hook: post-install
+    helm.sh/hook-delete-policy: hook-succeeded
+    helm.sh/hook-weight: "1"
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: concourse-web
+subjects:
+- kind: ServiceAccount
+  name: concourse-web
+  namespace: trustacks-toolchain-{{ .toolchain }}
+# ---
+# apiVersion: batch/v1
+# kind: Job
+# metadata:
+#   name: application-{{ .application }}-post-install
+#   annotations:
+#     helm.sh/hook: post-install
+#     helm.sh/hook-delete-policy: hook-succeeded
+#     helm.sh/hook-weight: "2"
+# spec:
+#   template:
+#     spec:
+#       restartPolicy: Never
+#       containers:
+#       - name: post-install
+#         image: {{ .image }}
+#         env:
+#         - name: CATALOG_MODE
+#           value: function
+#         - name: FUNCTION_NAME
+#           value: create-application
+#         - name: FUNCTION_PARAMS
+#           value: '{"provider": "concourse", "toolchain": "{{ .toolchain }}", "name": "{{ .application }}"}'
+#       serviceAccount: application-{{ .application }}-ci-driver

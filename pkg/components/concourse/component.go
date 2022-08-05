@@ -213,13 +213,18 @@ var pipelineTemplate string
 
 // createApplication creates the application pipeline.
 func createApplication(toolchain, name string, clientset kubernetes.Interface, cli string, flyCmd func(cli string, args ...string) error) error {
-	toolchainNamespace := fmt.Sprintf("trustacks-toolchain-%s", toolchain)
-	applicationNamespace := fmt.Sprintf("trustacks-application-%s-%s", toolchain, name)
-	vars, varsFrom, err := getApplicationVars(toolchainNamespace, applicationNamespace, clientset)
+	namespace := fmt.Sprintf("trustacks-toolchain-%s", toolchain)
+	if err := copyApplicationInputs(toolchain, name, clientset); err != nil {
+		return err
+	}
+	if err := setAgePublicKey(toolchain, name, clientset); err != nil {
+		return err
+	}
+	vars, varsFrom, err := getApplicationVars(name, toolchain, clientset)
 	if err != nil {
 		return err
 	}
-	secrets, err := getApplicationSecrets(toolchainNamespace, applicationNamespace, clientset)
+	secrets, err := getApplicationSecrets(name, toolchain, clientset)
 	if err != nil {
 		return err
 	}
@@ -246,7 +251,7 @@ func createApplication(toolchain, name string, clientset kubernetes.Interface, c
 	pipeline.Close()
 
 	// get the system user password.
-	webSecrets, err := clientset.CoreV1().Secrets(toolchainNamespace).Get(context.TODO(), "concourse-web", metav1.GetOptions{})
+	webSecrets, err := clientset.CoreV1().Secrets(namespace).Get(context.TODO(), "concourse-web", metav1.GetOptions{})
 	if err != nil {
 		return err
 	}
@@ -269,8 +274,52 @@ func createApplication(toolchain, name string, clientset kubernetes.Interface, c
 	return flyCmd(cli, "unpause-pipeline", "-p", name, "--team", team)
 }
 
+// copyApplicationInputs copies the application variables and secrets
+// inputs to the application namespace.
+func copyApplicationInputs(toolchain, name string, clientset kubernetes.Interface) error {
+	toolchainNamespace := fmt.Sprintf("trustacks-toolchain-%s", toolchain)
+	applicationNamespace := fmt.Sprintf("trustacks-application-%s-%s", toolchain, name)
+	// copy application varaibles.
+	vars, err := clientset.CoreV1().ConfigMaps(toolchainNamespace).Get(context.TODO(), fmt.Sprintf("application-%s-vars", name), metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+	applicationVars := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "application-vars",
+			Namespace: applicationNamespace,
+		},
+		Data: vars.Data,
+	}
+	if _, err := clientset.CoreV1().ConfigMaps(applicationNamespace).Create(context.TODO(), applicationVars, metav1.CreateOptions{}); err != nil {
+		if !strings.Contains(err.Error(), "already exists") {
+			return err
+		}
+	}
+	// copy application secrets.
+	secrets, err := clientset.CoreV1().Secrets(toolchainNamespace).Get(context.TODO(), fmt.Sprintf("application-%s-secrets", name), metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+	applicationSecrets := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "application-secrets",
+			Namespace: applicationNamespace,
+		},
+		Data: secrets.Data,
+	}
+	if _, err := clientset.CoreV1().Secrets(applicationNamespace).Create(context.TODO(), applicationSecrets, metav1.CreateOptions{}); err != nil {
+		if !strings.Contains(err.Error(), "already exists") {
+			return err
+		}
+	}
+	return nil
+}
+
 // getApplicationVars gets the application vars list.
-func getApplicationVars(toolchainNamespace, applicationNamespace string, clientset kubernetes.Interface) ([]string, string, error) {
+func getApplicationVars(name, toolchain string, clientset kubernetes.Interface) ([]string, string, error) {
+	toolchainNamespace := fmt.Sprintf("trustacks-toolchain-%s", toolchain)
+	applicationNamespace := fmt.Sprintf("trustacks-application-%s-%s", toolchain, name)
 	systemVars, err := clientset.CoreV1().ConfigMaps(toolchainNamespace).Get(context.TODO(), systemVarsName, metav1.GetOptions{})
 	if err != nil {
 		return nil, "", err
@@ -308,7 +357,9 @@ func getApplicationVars(toolchainNamespace, applicationNamespace string, clients
 }
 
 // getApplicationSecrets gets the application secrets list.
-func getApplicationSecrets(toolchainNamespace, applicationNamespace string, clientset kubernetes.Interface) ([]string, error) {
+func getApplicationSecrets(toolchain, name string, clientset kubernetes.Interface) ([]string, error) {
+	toolchainNamespace := fmt.Sprintf("trustacks-toolchain-%s", toolchain)
+	applicationNamespace := fmt.Sprintf("trustacks-application-%s-%s", toolchain, name)
 	systemSecrets, err := clientset.CoreV1().Secrets(toolchainNamespace).Get(context.TODO(), systemSecretsName, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
@@ -332,6 +383,22 @@ func getApplicationSecrets(toolchainNamespace, applicationNamespace string, clie
 		i++
 	}
 	return secrets, nil
+}
+
+// setAgePublicKey sets the age public key variable in the
+// target application.
+func setAgePublicKey(name, toolchain string, clientset kubernetes.Interface) error {
+	toolchainNamespace := fmt.Sprintf("trustacks-toolchain-%s", toolchain)
+	applicationNamespace := fmt.Sprintf("trustacks-application-%s-%s", toolchain, name)
+	secret, err := clientset.CoreV1().Secrets(toolchainNamespace).Get(context.TODO(), "sops-age", metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+	patch := []byte(fmt.Sprintf(`{"data": {"agePublicKey": "%s"}}`, secret.Data["age.agepub"]))
+	if _, err := clientset.CoreV1().ConfigMaps(applicationNamespace).Patch(context.TODO(), "application-vars", types.StrategicMergePatchType, patch, metav1.PatchOptions{}); err != nil {
+		return err
+	}
+	return nil
 }
 
 // flyCmd runs the fly command with the provided arguments.

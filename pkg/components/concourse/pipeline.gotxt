@@ -32,7 +32,7 @@ resources:
     {{- end }}
 
 jobs:
-- name: dagger
+- name: build
   plan:
   - get: source
   - get: image

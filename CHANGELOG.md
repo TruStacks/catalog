@@ -1,3 +1,9 @@
+## 1.1.0 (2022-08-04)
+
+### Feat
+
+- add concourse application hooks (#4)
+
 ## 1.0.2 (2022-07-26)
 
 ### Fix

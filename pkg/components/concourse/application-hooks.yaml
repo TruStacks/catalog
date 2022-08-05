@@ -3,6 +3,33 @@ kind: Namespace
 metadata:
   name: trustacks-application-{{ .toolchain }}-{{ .application }}
 ---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: concourse-web
+  namespace: trustacks-application-{{ .toolchain }}-{{ .application }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: concourse-web
+  namespace: trustacks-application-{{ .toolchain }}-{{ .application }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: concourse-web
+subjects:
+- kind: ServiceAccount
+  name: concourse-web
+  namespace: trustacks-toolchain-{{ .toolchain }}
+---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -98,41 +125,6 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: application-{{ .application }}-ci-driver
-  namespace: trustacks-toolchain-{{ .toolchain }}
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: concourse-web
-  namespace: trustacks-application-{{ .toolchain }}-{{ .application }}
-  annotations:
-    helm.sh/hook: post-install
-    helm.sh/hook-delete-policy: hook-succeeded
-    helm.sh/hook-weight: "1"
-rules:
-- apiGroups:
-  - ""
-  resources:
-  - secrets
-  verbs:
-  - get
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: concourse-web
-  namespace: trustacks-application-{{ .toolchain }}-{{ .application }}
-  annotations:
-    helm.sh/hook: post-install
-    helm.sh/hook-delete-policy: hook-succeeded
-    helm.sh/hook-weight: "1"
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: concourse-web
-subjects:
-- kind: ServiceAccount
-  name: concourse-web
   namespace: trustacks-toolchain-{{ .toolchain }}
 ---
 apiVersion: batch/v1

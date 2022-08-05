@@ -134,27 +134,27 @@ subjects:
 - kind: ServiceAccount
   name: concourse-web
   namespace: trustacks-toolchain-{{ .toolchain }}
-# ---
-# apiVersion: batch/v1
-# kind: Job
-# metadata:
-#   name: application-{{ .application }}-post-install
-#   annotations:
-#     helm.sh/hook: post-install
-#     helm.sh/hook-delete-policy: hook-succeeded
-#     helm.sh/hook-weight: "2"
-# spec:
-#   template:
-#     spec:
-#       restartPolicy: Never
-#       containers:
-#       - name: post-install
-#         image: {{ .image }}
-#         env:
-#         - name: CATALOG_MODE
-#           value: function
-#         - name: FUNCTION_NAME
-#           value: create-application
-#         - name: FUNCTION_PARAMS
-#           value: '{"provider": "concourse", "toolchain": "{{ .toolchain }}", "name": "{{ .application }}"}'
-#       serviceAccount: application-{{ .application }}-ci-driver
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: application-{{ .application }}-post-install
+  annotations:
+    helm.sh/hook: post-install
+    helm.sh/hook-delete-policy: hook-succeeded
+    helm.sh/hook-weight: "2"
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: post-install
+        image: {{ .image }}
+        env:
+        - name: CATALOG_MODE
+          value: function
+        - name: FUNCTION_NAME
+          value: create-application
+        - name: FUNCTION_PARAMS
+          value: '{"provider": "concourse", "toolchain": "{{ .toolchain }}", "name": "{{ .application }}"}'
+      serviceAccount: application-{{ .application }}-ci-driver

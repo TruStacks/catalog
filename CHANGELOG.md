@@ -1,3 +1,9 @@
+## 2.0.1 (2022-08-05)
+
+### Fix
+
+- remove hook annotations from the concourse-web role and binding. add success hook annotation to argocd (#7)
+
 ## 2.0.0 (2022-08-05)
 
 ### Feat

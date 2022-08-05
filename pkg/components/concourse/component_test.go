@@ -128,8 +128,7 @@ func TestCreateApplication(t *testing.T) {
 	clientset := fake.NewSimpleClientset()
 	systemVars := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "system-vars",
-			Namespace: "trustacks-toolchain-test",
+			Name: "system-vars",
 		},
 	}
 	if _, err := clientset.CoreV1().ConfigMaps("trustacks-toolchain-test").Create(context.TODO(), systemVars, metav1.CreateOptions{}); err != nil {
@@ -137,17 +136,15 @@ func TestCreateApplication(t *testing.T) {
 	}
 	applicationVars := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "application-vars",
-			Namespace: "trustacks-application-test-test",
+			Name: "application-test-vars",
 		},
 	}
-	if _, err := clientset.CoreV1().ConfigMaps("trustacks-application-test-test").Create(context.TODO(), applicationVars, metav1.CreateOptions{}); err != nil {
+	if _, err := clientset.CoreV1().ConfigMaps("trustacks-toolchain-test").Create(context.TODO(), applicationVars, metav1.CreateOptions{}); err != nil {
 		t.Fatal(err)
 	}
 	systemSecrets := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "system-secrets",
-			Namespace: "trustacks-toolchain-test",
+			Name: "system-secrets",
 		},
 	}
 	if _, err := clientset.CoreV1().Secrets("trustacks-toolchain-test").Create(context.TODO(), systemSecrets, metav1.CreateOptions{}); err != nil {
@@ -155,17 +152,23 @@ func TestCreateApplication(t *testing.T) {
 	}
 	applicationSecrets := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "application-secrets",
-			Namespace: "trustacks-application-test-test",
+			Name: "application-test-secrets",
 		},
 	}
-	if _, err := clientset.CoreV1().Secrets("trustacks-application-test-test").Create(context.TODO(), applicationSecrets, metav1.CreateOptions{}); err != nil {
+	if _, err := clientset.CoreV1().Secrets("trustacks-toolchain-test").Create(context.TODO(), applicationSecrets, metav1.CreateOptions{}); err != nil {
+		t.Fatal(err)
+	}
+	sopsAgeKey := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "sops-age",
+		},
+	}
+	if _, err := clientset.CoreV1().Secrets("trustacks-toolchain-test").Create(context.TODO(), sopsAgeKey, metav1.CreateOptions{}); err != nil {
 		t.Fatal(err)
 	}
 	concourseWeb := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "concourse-web",
-			Namespace: "trustacks-toolchain-test",
+			Name: "concourse-web",
 		},
 		Data: map[string][]byte{"local-users": []byte("test:test")},
 	}
@@ -184,8 +187,6 @@ func TestCreateApplication(t *testing.T) {
 
 func TestGetApplicationVars(t *testing.T) {
 	clientset := fake.NewSimpleClientset()
-	toolchainNamespace := "trustacks-toolchain-test"
-	applicationNamespace := "trustacks-application-test-test"
 	systemVars := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "system-vars",
@@ -195,7 +196,7 @@ func TestGetApplicationVars(t *testing.T) {
 			"system2": "test",
 		},
 	}
-	if _, err := clientset.CoreV1().ConfigMaps(toolchainNamespace).Create(context.TODO(), systemVars, metav1.CreateOptions{}); err != nil {
+	if _, err := clientset.CoreV1().ConfigMaps("trustacks-toolchain-test").Create(context.TODO(), systemVars, metav1.CreateOptions{}); err != nil {
 		t.Fatal(err)
 	}
 	applicationVars := &corev1.ConfigMap{
@@ -207,10 +208,10 @@ func TestGetApplicationVars(t *testing.T) {
 			"application2": "test",
 		},
 	}
-	if _, err := clientset.CoreV1().ConfigMaps(applicationNamespace).Create(context.TODO(), applicationVars, metav1.CreateOptions{}); err != nil {
+	if _, err := clientset.CoreV1().ConfigMaps("trustacks-application-test-test").Create(context.TODO(), applicationVars, metav1.CreateOptions{}); err != nil {
 		t.Fatal(err)
 	}
-	vars, path, err := getApplicationVars(toolchainNamespace, applicationNamespace, clientset)
+	vars, path, err := getApplicationVars("test", "test", clientset)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -223,8 +224,6 @@ func TestGetApplicationVars(t *testing.T) {
 
 func TestGetApplicationSecrets(t *testing.T) {
 	clientset := fake.NewSimpleClientset()
-	toolchainNamespace := "trustacks-toolchain-test"
-	applicationNamespace := "trustacks-application-test-test"
 	systemSecrets := &corev1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "system-secrets",
@@ -234,7 +233,7 @@ func TestGetApplicationSecrets(t *testing.T) {
 			"system2": []byte("test"),
 		},
 	}
-	if _, err := clientset.CoreV1().Secrets(toolchainNamespace).Create(context.TODO(), systemSecrets, metav1.CreateOptions{}); err != nil {
+	if _, err := clientset.CoreV1().Secrets("trustacks-toolchain-test").Create(context.TODO(), systemSecrets, metav1.CreateOptions{}); err != nil {
 		t.Fatal(err)
 	}
 	applicationSecrets := &corev1.Secret{
@@ -246,10 +245,10 @@ func TestGetApplicationSecrets(t *testing.T) {
 			"application2": []byte("test"),
 		},
 	}
-	if _, err := clientset.CoreV1().Secrets(applicationNamespace).Create(context.TODO(), applicationSecrets, metav1.CreateOptions{}); err != nil {
+	if _, err := clientset.CoreV1().Secrets("trustacks-application-test-test").Create(context.TODO(), applicationSecrets, metav1.CreateOptions{}); err != nil {
 		t.Fatal(err)
 	}
-	secrets, err := getApplicationSecrets(toolchainNamespace, applicationNamespace, clientset)
+	secrets, err := getApplicationSecrets("test", "test", clientset)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -257,4 +256,78 @@ func TestGetApplicationSecrets(t *testing.T) {
 	assert.Contains(t, secrets, "system2", "got an unexpected application var")
 	assert.Contains(t, secrets, "application1", "got an unexpected application var")
 	assert.Contains(t, secrets, "application2", "got an unexpected application var")
+}
+
+func TestSetAgePublicKey(t *testing.T) {
+	clientset := fake.NewSimpleClientset()
+	sopsAgeSecret := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "sops-age",
+		},
+		Data: map[string][]byte{
+			"age.agepub": []byte("age13p8qsfygta3td5yqskddxgrm62zwzekjzx0690ux46tmxqxegvqswhmrl0"),
+		},
+	}
+	if _, err := clientset.CoreV1().Secrets("trustacks-toolchain-demo").Create(context.TODO(), sopsAgeSecret, metav1.CreateOptions{}); err != nil {
+		t.Fatal(err)
+	}
+	applicationVars := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "application-vars",
+		},
+		Data: map[string]string{},
+	}
+	if _, err := clientset.CoreV1().ConfigMaps("trustacks-application-demo-demo").Create(context.TODO(), applicationVars, metav1.CreateOptions{}); err != nil {
+		t.Fatal(err)
+	}
+	if err := setAgePublicKey("demo", "demo", clientset); err != nil {
+		t.Fatal(err)
+	}
+	vars, err := clientset.CoreV1().ConfigMaps("trustacks-application-demo-demo").Get(context.TODO(), "application-vars", metav1.GetOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.Regexp(t, `age13p8qsfygta3td5yqskddxgrm62zwzekjzx0690ux46tmxqxegvqswhmrl0`, vars.Data["agePublicKey"], "got an unexpected age private key")
+}
+
+func TestCopyApplicationInputs(t *testing.T) {
+	clientset := fake.NewSimpleClientset()
+	vars := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "application-test-vars",
+			Namespace: "trustacks-toolchain-test",
+		},
+		Data: map[string]string{
+			"test": "value",
+		},
+	}
+	if _, err := clientset.CoreV1().ConfigMaps("trustacks-toolchain-test").Create(context.TODO(), vars, metav1.CreateOptions{}); err != nil {
+		t.Fatal(err)
+	}
+	secrets := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "application-test-secrets",
+			Namespace: "trustacks-toolchain-test",
+		},
+		Data: map[string][]byte{
+			"test": []byte("value"),
+		},
+	}
+	if _, err := clientset.CoreV1().Secrets("trustacks-toolchain-test").Create(context.TODO(), secrets, metav1.CreateOptions{}); err != nil {
+		t.Fatal(err)
+	}
+	if err := copyApplicationInputs("test", "test", clientset); err != nil {
+		t.Fatal(err)
+	}
+	var err error
+	vars, err = clientset.CoreV1().ConfigMaps("trustacks-application-test-test").Get(context.TODO(), "application-vars", metav1.GetOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	secrets, err = clientset.CoreV1().Secrets("trustacks-application-test-test").Get(context.TODO(), "application-secrets", metav1.GetOptions{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	assert.Equal(t, "value", vars.Data["test"], "got an unexpected variable value")
+	assert.Equal(t, "value", string(secrets.Data["test"]), "got an unexpected secret value")
 }

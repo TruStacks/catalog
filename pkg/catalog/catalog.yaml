@@ -1,17 +1,19 @@
 parameters:
+
 # the single-sign-on provider name.
 - name: sso
+
+# the ci provider name.
+- name: ci
+
 # ingress controller host port.
 - name: ingressPort
   default: 443
+
 # ingress domain name.
 - name: domain
   default: local.gd
+
 # enable tls
 - name: tls
-  default: false
-# local sso username
-- name: username
-  default: trustacks
-# local sso password
-- name: password
+  default: true

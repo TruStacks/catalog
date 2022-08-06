@@ -208,10 +208,10 @@ func TestGetApplicationVars(t *testing.T) {
 			"application2": "test",
 		},
 	}
-	if _, err := clientset.CoreV1().ConfigMaps("trustacks-application-test-test").Create(context.TODO(), applicationVars, metav1.CreateOptions{}); err != nil {
+	if _, err := clientset.CoreV1().ConfigMaps("trustacks-application-test-app").Create(context.TODO(), applicationVars, metav1.CreateOptions{}); err != nil {
 		t.Fatal(err)
 	}
-	vars, path, err := getApplicationVars("test", "test", clientset)
+	vars, path, err := getApplicationVars("test", "app", clientset)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -245,10 +245,10 @@ func TestGetApplicationSecrets(t *testing.T) {
 			"application2": []byte("test"),
 		},
 	}
-	if _, err := clientset.CoreV1().Secrets("trustacks-application-test-test").Create(context.TODO(), applicationSecrets, metav1.CreateOptions{}); err != nil {
+	if _, err := clientset.CoreV1().Secrets("trustacks-application-test-app").Create(context.TODO(), applicationSecrets, metav1.CreateOptions{}); err != nil {
 		t.Fatal(err)
 	}
-	secrets, err := getApplicationSecrets("test", "test", clientset)
+	secrets, err := getApplicationSecrets("test", "app", clientset)
 	if err != nil {
 		t.Fatal(err)
 	}

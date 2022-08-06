@@ -1,3 +1,9 @@
+## 2.0.3 (2022-08-06)
+
+### Fix
+
+- change get application input args position (#9)
+
 ## 2.0.2 (2022-08-06)
 
 ### Fix

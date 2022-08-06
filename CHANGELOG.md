@@ -1,3 +1,9 @@
+## 2.0.2 (2022-08-06)
+
+### Fix
+
+- change sops ci args position (#8)
+
 ## 2.0.1 (2022-08-05)
 
 ### Fix

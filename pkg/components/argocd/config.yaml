@@ -52,9 +52,8 @@ values: |-
           p, role:admin, accounts, *, *, allow
           p, role:admin, gpgkeys, *, *, allow
 
-          p, role:editor, applications, create, */*, allow
-          p, role:editor, applications, update, */*, allow
-          p, role:editor, applications, sync, */*, allow
+          p, role:editor, repositories, *, */*, allows
+          p, role:editor, applications, *, */*, allow
           p, role:editor, clusters, create, *, allow
 
           p, role:viewer, applications, get, */*, allow
@@ -62,7 +61,7 @@ values: |-
           g, admins , role:admin
           g, editors, role:editor
           g, viewers, role:viewer
-          g, editors, user:trustacks
+          g, trustacks, role:editor
     extraContainers:
     - name: auth-proxy
       image: quay.io/trustacks/local-gd-proxy

@@ -268,7 +268,7 @@ func TestSetAgePublicKey(t *testing.T) {
 			"age.agepub": []byte("age13p8qsfygta3td5yqskddxgrm62zwzekjzx0690ux46tmxqxegvqswhmrl0"),
 		},
 	}
-	if _, err := clientset.CoreV1().Secrets("trustacks-toolchain-demo").Create(context.TODO(), sopsAgeSecret, metav1.CreateOptions{}); err != nil {
+	if _, err := clientset.CoreV1().Secrets("trustacks-toolchain-test").Create(context.TODO(), sopsAgeSecret, metav1.CreateOptions{}); err != nil {
 		t.Fatal(err)
 	}
 	applicationVars := &corev1.ConfigMap{
@@ -277,13 +277,13 @@ func TestSetAgePublicKey(t *testing.T) {
 		},
 		Data: map[string]string{},
 	}
-	if _, err := clientset.CoreV1().ConfigMaps("trustacks-application-demo-demo").Create(context.TODO(), applicationVars, metav1.CreateOptions{}); err != nil {
+	if _, err := clientset.CoreV1().ConfigMaps("trustacks-application-test-app").Create(context.TODO(), applicationVars, metav1.CreateOptions{}); err != nil {
 		t.Fatal(err)
 	}
-	if err := setAgePublicKey("demo", "demo", clientset); err != nil {
+	if err := setAgePublicKey("test", "app", clientset); err != nil {
 		t.Fatal(err)
 	}
-	vars, err := clientset.CoreV1().ConfigMaps("trustacks-application-demo-demo").Get(context.TODO(), "application-vars", metav1.GetOptions{})
+	vars, err := clientset.CoreV1().ConfigMaps("trustacks-application-test-app").Get(context.TODO(), "application-vars", metav1.GetOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -387,7 +387,7 @@ func getApplicationSecrets(toolchain, name string, clientset kubernetes.Interfac
 
 // setAgePublicKey sets the age public key variable in the
 // target application.
-func setAgePublicKey(name, toolchain string, clientset kubernetes.Interface) error {
+func setAgePublicKey(toolchain, name string, clientset kubernetes.Interface) error {
 	toolchainNamespace := fmt.Sprintf("trustacks-toolchain-%s", toolchain)
 	applicationNamespace := fmt.Sprintf("trustacks-application-%s-%s", toolchain, name)
 	secret, err := clientset.CoreV1().Secrets(toolchainNamespace).Get(context.TODO(), "sops-age", metav1.GetOptions{})

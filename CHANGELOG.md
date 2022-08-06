@@ -1,3 +1,9 @@
+## 2.0.0 (2022-08-05)
+
+### Feat
+
+- refactor concourse ci driver application creation. update catalog parameters (#5)
+
 ## 1.1.0 (2022-08-04)
 
 ### Feat

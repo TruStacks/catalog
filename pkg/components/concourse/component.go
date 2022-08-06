@@ -220,11 +220,11 @@ func createApplication(toolchain, name string, clientset kubernetes.Interface, c
 	if err := setAgePublicKey(toolchain, name, clientset); err != nil {
 		return err
 	}
-	vars, varsFrom, err := getApplicationVars(name, toolchain, clientset)
+	vars, varsFrom, err := getApplicationVars(toolchain, name, clientset)
 	if err != nil {
 		return err
 	}
-	secrets, err := getApplicationSecrets(name, toolchain, clientset)
+	secrets, err := getApplicationSecrets(toolchain, name, clientset)
 	if err != nil {
 		return err
 	}
@@ -317,7 +317,7 @@ func copyApplicationInputs(toolchain, name string, clientset kubernetes.Interfac
 }
 
 // getApplicationVars gets the application vars list.
-func getApplicationVars(name, toolchain string, clientset kubernetes.Interface) ([]string, string, error) {
+func getApplicationVars(toolchain, name string, clientset kubernetes.Interface) ([]string, string, error) {
 	toolchainNamespace := fmt.Sprintf("trustacks-toolchain-%s", toolchain)
 	applicationNamespace := fmt.Sprintf("trustacks-application-%s-%s", toolchain, name)
 	systemVars, err := clientset.CoreV1().ConfigMaps(toolchainNamespace).Get(context.TODO(), systemVarsName, metav1.GetOptions{})

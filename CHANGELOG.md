@@ -1,3 +1,9 @@
+## 2.0.4 (2022-08-07)
+
+### Fix
+
+- update argocd trustacks user rbac permissions (#10)
+
 ## 2.0.3 (2022-08-06)
 
 ### Fix

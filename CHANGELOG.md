@@ -1,3 +1,27 @@
+## 2.0.4 (2022-08-07)
+
+### Fix
+
+- update argocd trustacks user rbac permissions (#10)
+
+## 2.0.3 (2022-08-06)
+
+### Fix
+
+- change get application input args position (#9)
+
+## 2.0.2 (2022-08-06)
+
+### Fix
+
+- change sops ci args position (#8)
+
+## 2.0.1 (2022-08-05)
+
+### Fix
+
+- remove hook annotations from the concourse-web role and binding. add success hook annotation to argocd (#7)
+
 ## 2.0.0 (2022-08-05)
 
 ### Feat

@@ -52,7 +52,7 @@ values: |-
           p, role:admin, accounts, *, *, allow
           p, role:admin, gpgkeys, *, *, allow
 
-          p, role:editor, repositories, *, */*, allows
+          p, role:editor, repositories, *, */*, allow
           p, role:editor, applications, *, */*, allow
           p, role:editor, clusters, create, *, allow
 
@@ -61,6 +61,7 @@ values: |-
           g, admins , role:admin
           g, editors, role:editor
           g, viewers, role:viewer
+
           g, trustacks, role:editor
     extraContainers:
     - name: auth-proxy

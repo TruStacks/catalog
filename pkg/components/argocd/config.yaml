@@ -58,7 +58,7 @@ values: |-
 
           p, role:viewer, applications, get, */*, allow
 
-          g, admins , role:admin
+          g, admins, role:admin
           g, editors, role:editor
           g, viewers, role:viewer
 

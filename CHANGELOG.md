@@ -1,3 +1,9 @@
+## 2.0.6 (2022-08-09)
+
+### Fix
+
+- remove admins role whitespace (#12)
+
 ## 2.0.5 (2022-08-08)
 
 ### Fix

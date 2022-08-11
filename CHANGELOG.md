@@ -1,3 +1,9 @@
+## 2.1.0 (2022-08-11)
+
+### Feat
+
+- obfuscate concourse secrets (#13)
+
 ## 2.0.6 (2022-08-09)
 
 ### Fix

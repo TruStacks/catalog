@@ -28,7 +28,9 @@ resources:
   type: static
   source:
     {{- range .secrets }}
-    {{ . }}: ((application-secrets."{{ . }}"))
+    {{ . }}: 
+      public: "<<hidden>>"
+      secret: ((application-secrets."{{ . }}"))
     {{- end }}
 
 jobs:

@@ -29,7 +29,7 @@ resources:
   source:
     {{- range .secrets }}
     {{ . }}: 
-      public: "<<hidden>>"
+      public: "*****"
       secret: ((application-secrets."{{ . }}"))
     {{- end }}
 

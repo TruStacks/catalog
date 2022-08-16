@@ -1,3 +1,9 @@
+## 2.2.0 (2022-08-16)
+
+### Feat
+
+- change the concourse obfuscation format
+
 ## 2.1.0 (2022-08-11)
 
 ### Feat

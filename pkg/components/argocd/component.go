@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -168,7 +168,7 @@ func getAPISessionToken(url, password string) (string, error) {
 		return "", err
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
@@ -195,7 +195,7 @@ func setServiceAccountPassword(url, token, currentPassword, password string) err
 
 // getNamespace gets the current kubernetes namespace.
 func getNamespace() (string, error) {
-	data, err := ioutil.ReadFile(inClusterNamespace)
+	data, err := os.ReadFile(inClusterNamespace)
 	if err != nil {
 		return "", err
 	}

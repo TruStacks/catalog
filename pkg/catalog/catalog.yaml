@@ -10,6 +10,10 @@ parameters:
 - name: ingressPort
   default: 443
 
+# ingress controller class.
+- name: ingressClass
+  default: ""
+
 # ingress domain name.
 - name: domain
   default: local.gd
@@ -17,3 +21,10 @@ parameters:
 # enable tls
 - name: tls
   default: true
+
+# enable cert manager support
+- name: certManagerEnabled
+  default: false
+
+# cert manager cluster issuer
+- name: certManagerClusterIssuer

@@ -7,9 +7,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -184,7 +185,7 @@ func getAPIResource(url, resource, token string, search string) ([]byte, error) 
 		return nil, err
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -207,7 +208,7 @@ func postAPIResource(url, resource, token string, data []byte) ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -219,7 +220,7 @@ func postAPIResource(url, resource, token string, data []byte) ([]byte, error) {
 
 // getNamespace gets the current kubernetes namespace.
 func getNamespace() (string, error) {
-	data, err := ioutil.ReadFile(inClusterNamespace)
+	data, err := os.ReadFile(inClusterNamespace)
 	if err != nil {
 		return "", err
 	}

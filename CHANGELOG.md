@@ -1,3 +1,9 @@
+## 2.4.0 (2022-08-24)
+
+### Feat
+
+- add cert manager support to argo cd. add cert manager and ingress class parameters. (#16)
+
 ## 2.3.0 (2022-08-24)
 
 ### Feat

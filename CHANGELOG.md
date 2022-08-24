@@ -1,3 +1,9 @@
+## 2.3.0 (2022-08-24)
+
+### Feat
+
+- add resource limits to concourse tasks (#15)
+
 ## 2.2.0 (2022-08-16)
 
 ### Feat

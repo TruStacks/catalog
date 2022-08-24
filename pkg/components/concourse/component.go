@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -159,7 +158,7 @@ func createOIDCClient(provider string) (string, string, error) {
 
 // downloadFlyCLI downloads the concourse fly cli.
 func downloadFlyCLI(url string) (string, error) {
-	f, err := ioutil.TempFile("", "fly-cli")
+	f, err := os.CreateTemp("", "fly-cli")
 	if err != nil {
 		return "", err
 	}
@@ -240,7 +239,7 @@ func createApplication(toolchain, name string, clientset kubernetes.Interface, c
 	}); err != nil {
 		return err
 	}
-	pipeline, err := ioutil.TempFile("", "pipeline")
+	pipeline, err := os.CreateTemp("", "pipeline")
 	if err != nil {
 		return err
 	}
@@ -336,7 +335,7 @@ func getApplicationVars(toolchain, name string, clientset kubernetes.Interface) 
 	if err != nil {
 		return nil, "", err
 	}
-	f, err := ioutil.TempFile("", applicationVarsName)
+	f, err := os.CreateTemp("", applicationVarsName)
 	if err != nil {
 		return nil, "", err
 	}
@@ -416,7 +415,7 @@ func runFlyCmd(cli string, args ...string) error {
 
 // getNamespace gets the current kubernetes namespace.
 func getNamespace() (string, error) {
-	data, err := ioutil.ReadFile(inClusterNamespace)
+	data, err := os.ReadFile(inClusterNamespace)
 	if err != nil {
 		return "", err
 	}

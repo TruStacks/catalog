@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -107,7 +106,7 @@ func TestDownloadFlyCLI(t *testing.T) {
 
 func TestCreateApplication(t *testing.T) {
 	// patch the in cluster namespace file.
-	f, err := ioutil.TempFile("", "in-cluster-namespace")
+	f, err := os.CreateTemp("", "in-cluster-namespace")
 	if err != nil {
 		t.Fatal(err)
 	}

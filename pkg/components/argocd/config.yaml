@@ -11,21 +11,30 @@ version: 4.9.12
 values: |-
   server:
     extraArgs:
-    {{- if eq .tls false}}
     - --insecure
-    {{- end}}
     ingress:
       enabled: true
       hosts:
       - argo-cd.{{ .domain }}
       paths:
       - /
+      {{- if eq .certManagerEnabled true }}
+      annotations:
+        cert-manager.io/cluster-issuer: {{ .certManagerClusterIssuer }}
+    	  {{- if .ingressClass }}
+        kubernetes.io/ingress.class: {{ .ingressClass }}
+        {{- end }}
+      tls:
+      - hosts:
+        - argo-cd.{{ .domain }}
+      secretName: argo-cd-ingress-tls-cert
+      {{- end }}
     config:
-    {{- if eq .tls true}}
+      {{- if eq .tls true}}
       url: "https://argo-cd.{{ .domain }}:{{ .ingressPort }}"
-    {{- else}}
+      {{- else}}
       url: "http://argo-cd.{{ .domain }}:{{ .ingressPort }}"
-    {{- end}}
+      {{- end}}
       accounts.trustacks: login
       kustomize.buildOptions: "--enable-alpha-plugins"
       oidc.config: |

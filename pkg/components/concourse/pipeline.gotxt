@@ -34,13 +34,13 @@ resources:
     {{- end }}
 
 jobs:
-- name: build
+- name: main
   plan:
   - get: source
   - get: image
   - get: vars
   - get: secrets
-  - task: build
+  - task: run
     config:
       inputs:
       - name: source
@@ -50,10 +50,12 @@ jobs:
         path: /mnt/secrets
       platform: linux
       run:
-        path: /bin/sh
-        args: ["-c", "cd source && docker-entrypoint build"]
+        path: docker-entrypoint
+        dir: source
     image: image
     params:
       DOCKER_HOST: tcp://dind:2375
       WORKFLOW: ((application-vars."workflow"))
+    container_limits:
+      memory: 4gb
     privileged: true

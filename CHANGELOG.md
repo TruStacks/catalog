@@ -1,3 +1,9 @@
+## 2.5.0 (2022-08-25)
+
+### Feat
+
+- add cert manager support to authentik (#17)
+
 ## 2.4.0 (2022-08-24)
 
 ### Feat

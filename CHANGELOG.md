@@ -1,3 +1,9 @@
+## 2.6.2 (2022-08-25)
+
+### Fix
+
+- change tls references to strings (#20)
+
 ## 2.6.1 (2022-08-25)
 
 ### Fix

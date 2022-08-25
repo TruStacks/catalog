@@ -1,3 +1,39 @@
+## 2.4.0 (2022-08-24)
+
+### Feat
+
+- add cert manager support to argo cd. add cert manager and ingress class parameters. (#16)
+
+## 2.3.0 (2022-08-24)
+
+### Feat
+
+- add resource limits to concourse tasks (#15)
+
+## 2.2.0 (2022-08-16)
+
+### Feat
+
+- change the concourse obfuscation format
+
+## 2.1.0 (2022-08-11)
+
+### Feat
+
+- obfuscate concourse secrets (#13)
+
+## 2.0.6 (2022-08-09)
+
+### Fix
+
+- remove admins role whitespace (#12)
+
+## 2.0.5 (2022-08-08)
+
+### Fix
+
+- change the rbac string (#11)
+
 ## 2.0.4 (2022-08-07)
 
 ### Fix

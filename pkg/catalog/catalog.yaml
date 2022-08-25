@@ -6,9 +6,13 @@ parameters:
 # the ci provider name.
 - name: ci
 
+# network access mode
+- name: network
+  default: "private"
+
 # ingress controller host port.
 - name: ingressPort
-  default: 443
+  default: "443"
 
 # ingress controller class.
 - name: ingressClass
@@ -16,15 +20,11 @@ parameters:
 
 # ingress domain name.
 - name: domain
-  default: local.gd
+  default: "local.gd"
 
 # enable tls
 - name: tls
-  default: true
-
-# enable cert manager support
-- name: certManagerEnabled
-  default: false
+  default: "true"
 
 # cert manager cluster issuer
 - name: certManagerClusterIssuer

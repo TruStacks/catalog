@@ -1,3 +1,9 @@
+## 2.6.3 (2022-08-25)
+
+### Fix
+
+- remove explicit port strings from port 80 and 443 (#22)
+
 ## 2.6.2 (2022-08-25)
 
 ### Fix

@@ -22,6 +22,17 @@ values: |-
       paths:
       - path: "/"
         pathType: "Prefix"
+    {{- if eq .certManagerEnabled true }}
+    annotations:
+      cert-manager.io/cluster-issuer: {{ .certManagerClusterIssuer }}
+      {{- if .ingressClass }}
+      kubernetes.io/ingress.class: {{ .ingressClass }}
+      {{- end }}
+    tls:
+    - hosts:
+      - authentik.{{ .domain }}
+    secretName: authentik-ingress-tls-cert
+    {{- end }}
   postgresql:
     enabled: true
     postgresqlPassword: {{ $postgresqlPassword }}

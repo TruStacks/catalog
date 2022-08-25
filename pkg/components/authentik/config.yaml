@@ -31,7 +31,7 @@ values: |-
     tls:
     - hosts:
       - authentik.{{ .domain }}
-    secretName: authentik-ingress-tls-cert
+      secretName: authentik-ingress-tls-cert
     {{- end }}
   postgresql:
     enabled: true

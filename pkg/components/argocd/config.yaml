@@ -61,7 +61,8 @@ values: |-
           p, role:admin, accounts, *, *, allow
           p, role:admin, gpgkeys, *, *, allow
 
-          p, role:editor, repositories, *, */*, allows
+
+          p, role:editor, repositories, *, */*, allow
           p, role:editor, applications, *, */*, allow
           p, role:editor, clusters, create, *, allow
 

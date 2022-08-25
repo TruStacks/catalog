@@ -20,7 +20,7 @@ parameters:
 
 # ingress domain name.
 - name: domain
-  default: local.gd
+  default: "local.gd"
 
 # enable tls
 - name: tls

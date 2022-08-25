@@ -22,10 +22,10 @@ values: |-
           enabled: true
           displayName: sso
           {{- if eq .sso "authentik"}}
-          issuer: "{{- if eq .tls true -}}https{{- else -}}http{{- end -}}://authentik.{{ .domain }}:{{ .ingressPort }}/application/o/concourse/"
+          issuer: "{{- if eq .tls "true" -}}https{{- else -}}http{{- end -}}://authentik.{{ .domain }}:{{ .ingressPort }}/application/o/concourse/"
           {{- end }}
           userNameKey: preferred_username
-      externalUrl: "{{- if eq .tls true -}}https{{- else -}}http{{- end -}}://concourse.{{ .domain }}:{{ .ingressPort }}"
+      externalUrl: "{{- if eq .tls "true" -}}https{{- else -}}http{{- end -}}://concourse.{{ .domain }}:{{ .ingressPort }}"
       kubernetes:
         namespacePrefix: trustacks-application-
         keepNamespace: false

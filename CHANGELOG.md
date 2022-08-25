@@ -1,3 +1,9 @@
+## 2.6.1 (2022-08-25)
+
+### Fix
+
+- update catalog variables. add cert manager ingress annotations (#19)
+
 ## 2.6.0 (2022-08-25)
 
 ### Feat

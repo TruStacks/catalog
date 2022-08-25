@@ -22,7 +22,7 @@ values: |-
       paths:
       - path: "/"
         pathType: "Prefix"
-    {{- if eq .certManagerEnabled true }}
+    {{- if eq .network "public" }}
     annotations:
       cert-manager.io/cluster-issuer: {{ .certManagerClusterIssuer }}
       {{- if .ingressClass }}

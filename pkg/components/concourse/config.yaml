@@ -30,6 +30,7 @@ values: |-
         namespacePrefix: trustacks-application-
         keepNamespace: false
   web:
+    {{- if eq .network "private" }}
     sidecarContainers:                                                                                                                                                                         
     - name: auth-proxy                                                                                                                                                                           
       image: quay.io/trustacks/local-gd-proxy                                                                                                                                                    
@@ -44,10 +45,22 @@ values: |-
         {{- if eq .sso "authentik"}} 
         value: authentik 
         {{- end }}
+    {{- end }}
     ingress:
       enabled: true
       hosts:
       - concourse.{{ .domain }}
+      {{- if eq .network "public" }}
+      annotations:
+        cert-manager.io/cluster-issuer: {{ .certManagerClusterIssuer }}
+    	  {{- if .ingressClass }}
+        kubernetes.io/ingress.class: {{ .ingressClass }}
+        {{- end }}
+      tls:
+      - hosts:
+        - argo-cd.{{ .domain }}
+        secretName: concourse-ingress-tls-cert
+      {{- end }}
   worker:
     env:
     - name: CONCOURSE_GARDEN_ALLOW_HOST_ACCESS

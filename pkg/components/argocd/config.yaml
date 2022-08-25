@@ -18,19 +18,19 @@ values: |-
       - argo-cd.{{ .domain }}
       paths:
       - /
-      {{- if eq .certManagerEnabled true }}
+      {{- if eq .network "public" }}
       annotations:
         cert-manager.io/cluster-issuer: {{ .certManagerClusterIssuer }}
-    	  {{- if .ingressClass }}
+        {{- if .ingressClass }}
         kubernetes.io/ingress.class: {{ .ingressClass }}
         {{- end }}
       tls:
       - hosts:
         - argo-cd.{{ .domain }}
-      secretName: argo-cd-ingress-tls-cert
+        secretName: argo-cd-ingress-tls-cert
       {{- end }}
     config:
-      {{- if eq .tls true}}
+      {{- if eq .tls "true" }}
       url: "https://argo-cd.{{ .domain }}:{{ .ingressPort }}"
       {{- else}}
       url: "http://argo-cd.{{ .domain }}:{{ .ingressPort }}"
@@ -72,6 +72,7 @@ values: |-
           g, editors, role:editor
           g, viewers, role:viewer
           g, trustacks, role:editor
+    {{- if eq .network "private" }}
     extraContainers:
     - name: auth-proxy
       image: quay.io/trustacks/local-gd-proxy
@@ -86,6 +87,7 @@ values: |-
         {{- if eq .sso "authentik"}} 
         value: authentik 
         {{- end }}
+    {{- end }}
   repoServer:
     env:
     - name: XDG_CONFIG_HOME

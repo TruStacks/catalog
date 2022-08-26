@@ -1,3 +1,9 @@
+## 2.6.5 (2022-08-26)
+
+### Fix
+
+- remove duplicate issuer in argo values (#25)
+
 ## 2.6.4 (2022-08-26)
 
 ### Fix

@@ -58,7 +58,7 @@ values: |-
         {{- end }}
       tls:
       - hosts:
-        - argo-cd.{{ .domain }}
+        - concourse.{{ .domain }}
         secretName: concourse-ingress-tls-cert
       {{- end }}
   worker:

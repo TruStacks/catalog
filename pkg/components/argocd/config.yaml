@@ -36,7 +36,7 @@ values: |-
       oidc.config: |
         name: sso
         {{- if eq .sso "authentik"}}
-        issuer: issuer: "{{- if eq .tls "true" -}}https{{- else -}}http{{- end -}}://authentik.{{ .domain }}{{- if and (ne .ingressPort "443") (ne .ingressPort "80") -}}:{{ .ingressPort }}{{- end -}}/application/o/argo-cd/"
+        issuer: "{{- if eq .tls "true" -}}https{{- else -}}http{{- end -}}://authentik.{{ .domain }}{{- if and (ne .ingressPort "443") (ne .ingressPort "80") -}}:{{ .ingressPort }}{{- end -}}/application/o/argo-cd/"
         {{- end }}
         clientID: $oidc-client:id
         clientSecret: $oidc-client:secret
